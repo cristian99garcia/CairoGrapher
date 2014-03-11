@@ -90,7 +90,7 @@ class CairoGrapher(Gtk.Window):
 
         lista = [
             'torta', 'barras horizontales', 'barras verticales',
-            'puntos', 'anillo', 'disperción'
+            'puntos', 'anillo'
             ]
 
         boton_configuraciones = Gtk.ToolButton(Gtk.STOCK_PREFERENCES)
@@ -195,11 +195,10 @@ class CairoGrapher(Gtk.Window):
 
         lista = [
         'torta', 'barras horizontales', 'barras verticales', 'puntos',
-        'anillo', 'disperción'
+        'anillo'
         ]
 
         self.grafica = 'Gráfica de ' + lista[combo.get_active()]
-        print self.grafica
 
         self.emit('reload')
 
@@ -428,17 +427,6 @@ class CairoGrapher(Gtk.Window):
                 shadow=False,
                 colors=self.colores,
                 inner_radius=self.inner_radius)
-
-        elif grafica == 'Gráfica de disperción':
-            print self.transformar_valores_a_gantt()
-            CairoPlot.gantt_chart(
-                self.direccion,
-                self.transformar_valores_a_gantt(),
-                 self.tamanyo_x,
-                 self.tamanyo_y,
-                 self.l_valores,
-                 self.y_labels,
-                 self.colores)
 
         self.area.set_from_file(self.direccion)
 
