@@ -24,6 +24,7 @@ import CairoPlot
 
 from Widgets import Toolbar
 from Widgets import PlotArea
+from Widgets import SettingsDialog
 
 from gi.repository import Gtk
 from gi.repository import Gdk
@@ -138,128 +139,25 @@ class CairoGrapher(Gtk.Window):
 
     def dialogo_configuraciones(self, *args):
 
-        def hbox_with_switch(label, variable, listbox, ifvar):
-
-            row = Gtk.HBox()
-            hbox = Gtk.HBox()
-            switch = Gtk.Switch()
-
-            switch.set_active(variable)
-            switch.set_use_action_appearance(True)
-            row.set_sensitive(ifvar)
-
-            if label == 'Presencia de los ejes':
-                switch.set_tooltip_text('Esta opción solo se habilitará si está seleccionada la "Gráfica de puntos"')
-
-            elif label == 'Bordes redondeados' or label == 'Mostrar valores':
-                switch.set_tooltip_text('Esta opción solo se habilitará si está seleccionada una gráfica de barras(horizontales o vérticales)')
-
-            elif label == 'Mostrar Cuadricula':
-                switch.set_tooltip_text('Esta opción solo estará habilitada si la gráfica seleccionada, está entre las siguientes opciones: "Gráfica de puntos", "Gráfica de barras verticales" o la "Gráfica de barras horizontales')
-
-            hbox.pack_start(Gtk.Label(label=label), False, False, 0)
-            hbox.pack_end(switch, False, False, 0)
-
-            row.add(hbox)
-            listbox.add(row)
-
-            return switch
-
-        dialogo = Gtk.Dialog()
-        vbox = dialogo.get_content_area()
-        listbox = Gtk.VBox()
-
-        dialogo.set_resizable(False)
-        dialogo.set_transient_for(self)
-        dialogo.set_modal(True)
-        dialogo.set_title('Configuraciones')
-        #listbox.set_selection_mode(Gtk.SelectionMode.NONE)
-
-        row = Gtk.HBox()
-        hbox = Gtk.HBox()
-        spin_x = Gtk.SpinButton()
-        spin_y = Gtk.SpinButton()
-        adj_x = Gtk.Adjustment(self.tamanyo_x, 50, 5000, 1, 10, 0)
-        adj_y = Gtk.Adjustment(self.tamanyo_y, 50, 5000, 1, 10, 0)
-
-        spin_x.set_adjustment(adj_x)
-        spin_x.set_value(self.tamanyo_x)
-        spin_x.connect('value-changed', self.set_var_spin, 'self.tamanyo_x')
-
-        spin_y.set_adjustment(adj_y)
-        spin_y.set_value(self.tamanyo_y)
-        spin_y.connect('value-changed', self.set_var_spin, 'self.tamanyo_y')
-
-        hbox.pack_start(Gtk.Label(label='Tamaño de la gráfica:'),
-            False, False, 10)
-        hbox.pack_end(spin_y, False, False, 0)
-        hbox.pack_end(spin_x, False, False, 10)
-
-        row.add(hbox)
-        listbox.add(row)
-
-        row = Gtk.HBox()
-        hbox = Gtk.HBox()
-        spin = Gtk.SpinButton()
-        adj = Gtk.Adjustment(self.borde, 0, 200, 1, 10, 0)
-
-        spin.set_adjustment(adj)
-        spin.set_value(self.borde)
-        spin.set_tooltip_text('Esta opción solo se habilitará, cuando esté seleccionada la "Gráfica de anillo"')
-        spin.connect('value-changed', self.set_var_spin, 'self.borde')
-
-        hbox.pack_start(Gtk.Label(label='Borde'), False, False, 10)
-        hbox.pack_end(spin, False, False, 0)
-
-        row.add(hbox)
-        listbox.add(row)
-
-        row = Gtk.HBox()
-        hbox = Gtk.HBox()
-        spin = Gtk.SpinButton()
-        adj = Gtk.Adjustment(self.inner_radius, 0.1, 0.9, 0.1, 0)
-
-        spin.set_digits(1)
-        spin.set_adjustment(adj)
-        spin.set_sensitive(self.grafica == 'Gráfica de anillo')
-        spin.set_value(self.inner_radius)
-        spin.set_tooltip_text('Esta opción solo estará habilitada si la gráfica seleccionada es la "Gráfica de anillo"')
-
-        spin.connect('value-changed', self.__set_inner_radius)
-
-        hbox.pack_start(Gtk.Label(
-            label='Tamaño del centro de la gráfica de anillo'), False, False, 0)
-        hbox.pack_start(spin, True, True, 0)
-
-        row.add(hbox)
-        listbox.add(row)
-
-        s_ejes = hbox_with_switch('Presencia de los ejes',
-            self.axis, listbox, self.grafica == 'Gráfica de puntos')
-
-        s_esquinas = hbox_with_switch('Bordes redondeados',
-            self.rounded_corners, listbox, self.grafica in
-            ['Gráfica de barras verticales', 'Gráfica de barras horizontales'])
-
-        s_esquinas = hbox_with_switch('Mostrar valores',
-            self.display_values, listbox, self.grafica in
-            ['Gráfica de barras verticales', 'Gráfica de barras horizontales'])
-
-        s_cuadricula = hbox_with_switch('Mostrar Cuadricula',
-            self.rounded_corners, listbox, self.grafica in
-            ['Gráfica de puntos', 'Gráfica de barras verticales',
-                'Gráfica de barras horizontales'])
-
-        s_ejes.connect('notify::active', self.__set_axis)
-        s_esquinas.connect('notify::active', self.__set_rounded_corners)
-        s_cuadricula.connect('notify::active', self.__set_gird)
-
-        vbox.pack_start(listbox, True, True, 10)
+        dialogo = SettingsDialog(self.cargar_configuracion(True))
+        dialogo.connect('settings-changed', self.settings_changed)
         dialogo.show_all()
 
-    def set_var_spin(self, widget, variable):
+    def settings_changed(self, widget, dicc):
 
-        exec(variable + ' = %d' % widget.get_value())
+        self.direccion = dicc['direccion']
+        self.grafica = dicc['grafica']
+        self.nombre = dicc['nombre']
+        self.titulo_x = dicc['titulo_x']
+        self.titulo_y = dicc['titulo_y']
+        self.tamanyo_x = int(dicc['tamanyo_x'])
+        self.tamanyo_y = int(dicc['tamanyo_y'])
+        self.inner_radius = dicc['inner_radius']
+        self.borde = dicc['borde']
+        self.axis = dicc['axis']
+        self.rounded_corners = dicc['rounded_corners']
+        self.display_values = dicc['display_values']
+
         self.emit('reload')
 
     def crear_grafica(self, grafica=None):
@@ -561,31 +459,48 @@ class CairoGrapher(Gtk.Window):
 
         self.emit('reload')
 
-    def cargar_configuracion(self):
+    def cargar_configuracion(self, devolver=False):
 
-        self.widgets = {'SpinButtons': [], 'Entrys': [], 'ClouseButtons': []}
-        self.colors = {}
-        self.botones = []
-        self.colores = []
-        self.valores = {}
-        self.direccion = os.path.expanduser('~/Grafica.png')
-        self.grafica = 'Gráfica de torta'
-        self.nombre = 'Grafica'
-        self.titulo_x = 'Gráfica'
-        self.titulo_y = ''
-        self.tamanyo_x = 600
-        self.tamanyo_y = 600
-        self.fondo = 'white light_gray'
-        self.borde = 0
-        self.display_values = False
-        self.axis = True
-        self.cuadricula = True
-        self.grupos = True
-        self.rounded_corners = True
-        self.inner_radius = 0.3
-        self.x_labels = []
-        self.y_labels = []
-        self.l_valores = self.ordenar_lista()
+        if not devolver:
+            self.widgets = {'SpinButtons': [], 'Entrys': [], 'ClouseButtons': []}
+            self.colors = {}
+            self.botones = []
+            self.colores = []
+            self.valores = {}
+            self.direccion = os.path.expanduser('~/Grafica.png')
+            self.grafica = 'Gráfica de torta'
+            self.nombre = 'Grafica'
+            self.titulo_x = 'Gráfica'
+            self.titulo_y = ''
+            self.tamanyo_x = 600
+            self.tamanyo_y = 600
+            self.fondo = 'white light_gray'
+            self.borde = 0
+            self.display_values = False
+            self.axis = True
+            self.cuadricula = True
+            self.grupos = True
+            self.rounded_corners = True
+            self.inner_radius = 0.3
+            self.x_labels = []
+            self.y_labels = []
+            self.l_valores = self.ordenar_lista()
+
+        else:
+            return {
+                'direccion': self.direccion,
+                'grafica': self.grafica,
+                'nombre': self.nombre,
+                'titulo_x': self.titulo_x,
+                'titulo_y': self.titulo_y,
+                'tamanyo_x': self.tamanyo_x,
+                'tamanyo_y': self.tamanyo_y,
+                'inner_radius': self.inner_radius,
+                'borde': self.borde,
+                'axis': self.axis,
+                'rounded_corners': self.rounded_corners,
+                'display_values': self.display_values,
+                }
 
     def cambiar_nombre_variable(self, widget, label, row):
 
@@ -697,11 +612,6 @@ class CairoGrapher(Gtk.Window):
         elif gparam:
             exec(widget.variable + ' = ' + str(widget.get_active()))
 
-        self.emit('reload')
-
-    def __set_inner_radius(self, widget):
-
-        self.inner_radius = widget.get_value()
         self.emit('reload')
 
     def __recargar(self, *args):
