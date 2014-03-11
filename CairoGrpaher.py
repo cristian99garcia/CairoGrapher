@@ -132,11 +132,7 @@ class CairoGrapher(Gtk.Window):
     def cambiar_tipo(self, toolbar):
 
         combo = toolbar.get_plot_combo()
-        lista = [
-        'torta', 'barras horizontales', 'barras verticales', 'puntos',
-        'anillo'
-        ]
-
+        lista = toolbar.lista
         self.grafica = 'Gráfica de ' + lista[combo.get_active()]
 
         self.emit('reload')
@@ -275,6 +271,8 @@ class CairoGrapher(Gtk.Window):
         self.grafica = grafica
         pasar = False
 
+        self.cargar_colores()
+
         for x in self.l_valores:
             for i in self.valores[x]:
                 if i >= 1:
@@ -369,6 +367,16 @@ class CairoGrapher(Gtk.Window):
 
         self.area.set_from_file(self.direccion)
 
+    def cargar_colores(self):
+
+        self.colores = []
+
+        if self._vbox.get_children():
+            listbox = self._vbox.get_children()[0].get_children()
+
+            for x in listbox:
+                self.colores += [self.colors[x]]
+
     def transformar_valores_a_gantt(self):
 
         lista = []
@@ -407,8 +415,8 @@ class CairoGrapher(Gtk.Window):
     def cargar_variables(self, actualizar=True):
 
         self.l_valores = self.ordenar_lista()
+        self.colors = {}
         lista = []
-        self.colores += self.get_color()
         listbox = Gtk.ListBox()
 
         listbox.set_selection_mode(Gtk.SelectionMode.NONE)
@@ -420,10 +428,11 @@ class CairoGrapher(Gtk.Window):
             label = Gtk.Label(_x)
             entrada = Gtk.Entry()
             numero = 0
+            self.colors[row] = self.get_color()
 
             self.widgets['Entrys'].append(entrada)
 
-            entrada.connect('changed', self.cambiar_nombre_variable, label)
+            entrada.connect('changed', self.cambiar_nombre_variable, label, row)
 
             entrada.set_text(_x)
             hbox.set_spacing(20)
@@ -452,7 +461,7 @@ class CairoGrapher(Gtk.Window):
 
                 numero += 1
 
-            color = self.colores[self.l_valores.index(_x)]
+            color = self.colors[row]
 
             boton_cerrar = Gtk.Button()
             boton_cerrar.img = Gtk.Image.new_from_stock(Gtk.STOCK_CLOSE, Gtk.IconSize.BUTTON)
@@ -483,9 +492,9 @@ class CairoGrapher(Gtk.Window):
             boton_cerrar.connect('clicked', self.borrar_valor, label, entrada, spin, listbox, row)
 
             boton_mas.connect('clicked', self.mostrar, hbox_mas)
-            r_scale.connect('value-changed', self.setear_color, 'Rojo', label)
-            g_scale.connect('value-changed', self.setear_color, 'Verde', label)
-            b_scale.connect('value-changed', self.setear_color, 'Azúl', label)
+            r_scale.connect('value-changed', self.setear_color, 'Rojo', row)
+            g_scale.connect('value-changed', self.setear_color, 'Verde', row)
+            b_scale.connect('value-changed', self.setear_color, 'Azúl', row)
 
             hbox_mas.pack_start(r_scale, True, True, 5)
             hbox_mas.pack_start(g_scale, True, True, 5)
@@ -526,23 +535,18 @@ class CairoGrapher(Gtk.Window):
             boton.set_image(imagen)
             boton.set_tooltip_text('Ocultar los controles de color')
 
-    def setear_color(self, widget, label, frame):
+    def setear_color(self, widget, label, listbox):
 
-        valor = self.l_valores[self.l_valores.index(frame.get_label())]
         cantidad = widget.get_value()
 
         if label == 'Rojo':
-            self.colores[self.l_valores.index(valor)] = \
-            (cantidad,) + self.colores[self.l_valores.index(valor)][1:]
+            self.colors[listbox] = (cantidad,) + self.colors[listbox][1:]
 
         elif label == 'Verde':
-            self.colores[self.l_valores.index(valor)] = \
-            self.colores[self.l_valores.index(valor)][:1] + \
-            (cantidad,) + self.colores[self.l_valores.index(valor)][2:]
+            self.colors[listbox] = self.colors[listbox][:1] + (cantidad,) + self.colors[listbox][2:]
 
         elif label == 'Azúl':
-            self.colores[self.l_valores.index(valor)] = \
-            self.colores[self.l_valores.index(valor)][:2] + (cantidad,)
+            self.colors[listbox] =  self.colors[listbox][:2] + (cantidad,)
 
         self.emit('reload')
 
@@ -561,6 +565,7 @@ class CairoGrapher(Gtk.Window):
     def cargar_configuracion(self):
 
         self.widgets = {'SpinButtons': [], 'Entrys': [], 'ClouseButtons': []}
+        self.colors = {}
         self.botones = []
         self.colores = []
         self.valores = {}
@@ -583,10 +588,10 @@ class CairoGrapher(Gtk.Window):
         self.y_labels = []
         self.l_valores = self.ordenar_lista()
 
-    def cambiar_nombre_variable(self, widget, frame):
+    def cambiar_nombre_variable(self, widget, label, row):
 
         nombre_nuevo = widget.get_text()
-        nombre_antiguo = frame.get_label()
+        nombre_antiguo = label.get_label()
         valores = self.valores[nombre_antiguo]
 
         if (nombre_nuevo == nombre_antiguo) or \
@@ -595,7 +600,7 @@ class CairoGrapher(Gtk.Window):
 
             return
 
-        frame.set_label(nombre_nuevo)
+        label.set_label(nombre_nuevo)
         del self.valores[nombre_antiguo]
         self.valores[nombre_nuevo] = valores
         self.l_valores = self.valores.keys()
@@ -610,6 +615,7 @@ class CairoGrapher(Gtk.Window):
     def crear_variable(self, *args):
 
         lista = self._vbox.get_children()
+        self.colores += [self.get_color()]
 
         self.limpiar_vbox()
 
@@ -680,7 +686,7 @@ class CairoGrapher(Gtk.Window):
         num1 = random.randint(0, 100) / 100.0
         num2 = random.randint(0, 100) / 100.0
         num3 = random.randint(0, 100) / 100.0
-        color = [(num1, num2, num3)]
+        color = (num1, num2, num3)
 
         return color
 
