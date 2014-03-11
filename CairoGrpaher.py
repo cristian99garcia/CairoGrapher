@@ -157,6 +157,7 @@ class CairoGrapher(Gtk.Window):
         self.axis = dicc['axis']
         self.rounded_corners = dicc['rounded_corners']
         self.display_values = dicc['display_values']
+        self.cuadricula = dicc['gird']
 
         self.emit('reload')
 
@@ -180,44 +181,46 @@ class CairoGrapher(Gtk.Window):
             self.valores[self.l_valores[0]] = [1]
 
         if grafica == 'Gráfica de barras horizontales':
-            CairoPlot.horizontal_bar_plot(
-                self.direccion,
-                self.valores,
-                self.tamanyo_x,
-                self.tamanyo_y,
-                background=self.fondo,
-                border=self.borde,
-                display_values=self.display_values,
-                grid=self.cuadricula,
-                rounded_corners=self.rounded_corners,
-                stack=False,
-                three_dimension=True,
-                series_labels=None,
-                x_labels=self.x_labels,
-                y_labels=self.y_labels,
-                x_bounds=None,
-                y_bounds=None,
-                colors=self.colores)
+            if self.valores:
+                CairoPlot.horizontal_bar_plot(
+                    self.direccion,
+                    self.valores,
+                    self.tamanyo_x,
+                    self.tamanyo_y,
+                    background=self.fondo,
+                    border=self.borde,
+                    display_values=self.display_values,
+                    grid=self.cuadricula,
+                    rounded_corners=self.rounded_corners,
+                    stack=False,
+                    three_dimension=True,
+                    series_labels=None,
+                    x_labels=self.x_labels,
+                    y_labels=self.y_labels,
+                    x_bounds=None,
+                    y_bounds=None,
+                    colors=self.colores)
 
         elif grafica == 'Gráfica de barras verticales':
-            CairoPlot.vertical_bar_plot(
-                self.direccion,
-                self.valores,
-                self.tamanyo_x,
-                self.tamanyo_y,
-                background=self.fondo,
-                border=self.borde,
-                display_values=self.display_values,
-                grid=self.cuadricula,
-                rounded_corners=self.rounded_corners,
-                stack=False,
-                three_dimension=True,
-                series_labels=None,
-                x_labels=self.x_labels,
-                y_labels=self.y_labels,
-                x_bounds=None,
-                y_bounds=None,
-                colors=self.colores)
+            if self.valores:
+                CairoPlot.vertical_bar_plot(
+                    self.direccion,
+                    self.valores,
+                    self.tamanyo_x,
+                    self.tamanyo_y,
+                    background=self.fondo,
+                    border=self.borde,
+                    display_values=self.display_values,
+                    grid=self.cuadricula,
+                    rounded_corners=self.rounded_corners,
+                    stack=False,
+                    three_dimension=True,
+                    series_labels=None,
+                    x_labels=self.x_labels,
+                    y_labels=self.y_labels,
+                    x_bounds=None,
+                    y_bounds=None,
+                    colors=self.colores)
 
         elif grafica == 'Gráfica de torta':
             CairoPlot.pie_plot(
@@ -500,6 +503,7 @@ class CairoGrapher(Gtk.Window):
                 'axis': self.axis,
                 'rounded_corners': self.rounded_corners,
                 'display_values': self.display_values,
+                'gird': self.cuadricula
                 }
 
     def cambiar_nombre_variable(self, widget, label, row):
@@ -622,21 +626,6 @@ class CairoGrapher(Gtk.Window):
 
         conjunto = widget.variable
         self.valores[conjunto][valor] = widget.get_value()
-        self.emit('reload')
-
-    def __set_rounded_corners(self, widget, gparam):
-
-        self.rounded_corners = widget.get_active()
-        self.emit('reload')
-
-    def __set_axis(self, widget, gparam):
-
-        self.axis = widget.get_active()
-        self.emit('reload')
-
-    def __set_gird(self, widget, gparam):
-
-        self.cuadricula = widget.get_active()
         self.emit('reload')
 
     def __set_background(self, toolbar):

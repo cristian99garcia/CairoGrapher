@@ -191,13 +191,11 @@ class SettingsDialog(Gtk.Dialog):
         s_esquinas = self.hbox_with_switch('Mostrar valores', dicc['display_values'], dicc['grafica'] in ['Gráfica de barras verticales', 'Gráfica de barras horizontales'])
         s_cuadricula = self.hbox_with_switch('Mostrar Cuadricula', dicc['rounded_corners'], dicc['grafica'] in ['Gráfica de puntos', 'Gráfica de barras verticales', 'Gráfica de barras horizontales'])
 
-        #s_ejes.connect('notify::active', self.__set_axis)
-        #s_esquinas.connect('notify::active', self.__set_rounded_corners)
-        #s_cuadricula.connect('notify::active', self.__set_gird)
+        s_ejes.connect('notify::active', self.set_var_switch, 'axis')
+        s_esquinas.connect('notify::active', self.set_var_switch, 'rounded_corners')
+        s_cuadricula.connect('notify::active', self.set_var_switch, 'gird')
 
         self.vbox.pack_start(self.listbox, True, True, 10)
-        #dialogo.show_all()
-
 
     def hbox_with_switch(self, label, variable, ifvar):
 
@@ -229,5 +227,9 @@ class SettingsDialog(Gtk.Dialog):
     def set_var_spin(self, widget, variable):
 
         self.diccionario[variable] = widget.get_value()
+        self.emit('settings-changed', self.diccionario)
 
+    def set_var_switch(self, widget, gparam, variable):
+
+        self.diccionario[variable] = widget.get_active()
         self.emit('settings-changed', self.diccionario)
