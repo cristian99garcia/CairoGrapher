@@ -23,6 +23,7 @@ import random
 import CairoPlot
 
 from Widgets import Toolbar
+from Widgets import PlotArea
 
 from gi.repository import Gtk
 from gi.repository import Gdk
@@ -44,7 +45,7 @@ class CairoGrapher(Gtk.Window):
         self.vbox = Gtk.VBox()
         self._vbox = Gtk.VBox()
         self.paned = Gtk.HPaned()
-        self.area = Gtk.Image()
+        self.area = PlotArea()
 
         scrolled = Gtk.ScrolledWindow()
 
@@ -52,9 +53,7 @@ class CairoGrapher(Gtk.Window):
         self.crear_scrolled_variables()
         self.crear_grafica()
 
-        if os.path.exists(os.path.expanduser('~/' + self.nombre + '.png')):
-            self.area.set_from_file(os.path.expanduser(
-                '~/' + self.nombre + '.png'))
+        self.area.set_plot(self.direccion)
 
         self.connect('reload', self.__recargar)
         self.connect('reload', self.actualizar_combo_borrar, self.combo_borrar)
@@ -365,7 +364,7 @@ class CairoGrapher(Gtk.Window):
                 colors=self.colores,
                 inner_radius=self.inner_radius)
 
-        self.area.set_from_file(self.direccion)
+        self.area.set_plot(self.direccion)
 
     def cargar_colores(self):
 

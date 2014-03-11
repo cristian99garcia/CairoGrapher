@@ -4,6 +4,8 @@
 #   Widgets.py por:
 #   Cristian García <cristian99garcia@gmail.com>
 
+import os
+
 from gi.repository import Gtk
 from gi.repository import GObject
 
@@ -93,3 +95,15 @@ class Toolbar(Gtk.HeaderBar):
     def get_background_combo(self):
 
         return self.combo_colores
+
+
+class PlotArea(Gtk.Image):
+
+    def __init__(self):
+
+        Gtk.Image.__init__(self)
+
+    def set_plot(self, filename):
+
+        if os.path.exists(filename):
+            self.set_from_file(filename)
