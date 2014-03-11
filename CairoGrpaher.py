@@ -22,6 +22,8 @@ import os
 import random
 import CairoPlot
 
+from Widgets import Toolbar
+
 from gi.repository import Gtk
 from gi.repository import Gdk
 from gi.repository import GObject
@@ -43,10 +45,10 @@ class CairoGrapher(Gtk.Window):
         self._vbox = Gtk.VBox()
         self.paned = Gtk.HPaned()
         self.area = Gtk.Image()
-        self.barra = self.crear_barra()
 
         scrolled = Gtk.ScrolledWindow()
 
+        self.crear_barra()
         self.crear_scrolled_variables()
         self.crear_grafica()
 
@@ -86,84 +88,20 @@ class CairoGrapher(Gtk.Window):
 
     def crear_barra(self):
 
-        toolbar = Gtk.HeaderBar()
+        toolbar = Toolbar()
+        self.combo_borrar = toolbar.combo_borrar
 
-        lista = [
-            'torta', 'barras horizontales', 'barras verticales',
-            'puntos', 'anillo'
-            ]
+        toolbar.connect('save', self.guardar_archivo)
+        toolbar.connect('new-variable', self.crear_variable)
+        toolbar.connect('new-variable', self.actualizar_combo_borrar)
+        toolbar.connect('new-column', self.aniadir_a_variable)
+        toolbar.connect('settings-dialog', self.dialogo_configuraciones)
+        toolbar.connect('change-plot', self.cambiar_tipo)
+        toolbar.connect('remove-column', self.borrar_columna)
+        toolbar.connect('remove-column', self.actualizar_combo_borrar)
+        toolbar.connect('background-changed', self.__set_background)
 
-        boton_configuraciones = Gtk.ToolButton(Gtk.STOCK_PREFERENCES)
-        boton_guardar = Gtk.ToolButton(Gtk.STOCK_SAVE)
-        boton_agregar = Gtk.ToolButton(Gtk.STOCK_ADD)
-        boton_aniadir = Gtk.ToolButton(Gtk.STOCK_ADD)
-        boton_borrar = Gtk.ToolButton(Gtk.STOCK_REMOVE)
-        combo_graficas = Gtk.ComboBoxText()
-        self.combo_borrar = Gtk.ComboBoxText()
-        self.combo_borrar.boton = boton_borrar
-        combo_colores = Gtk.ComboBoxText()
-        separador = Gtk.SeparatorToolItem()
-        #stop_button = StopButton(self)
-        item1 = Gtk.ToolItem()
-        item2 = Gtk.ToolItem()
-        item3 = Gtk.ToolItem()
-        item4 = Gtk.ToolItem()
-        _hbox = Gtk.HBox()
-
-        boton_guardar.set_tooltip_text('Guardar gráfica en un archivo, todos los cambios posteriores serán guardados automáticamente')
-        boton_agregar.set_tooltip_text('Crear nueva variable')
-        boton_aniadir.set_tooltip_text('Agregar columna a las variables')
-        boton_borrar.set_tooltip_text('Borrar la columna seleccionada')
-        separador.set_draw(False)
-        separador.set_expand(True)
-        combo_colores.set_tooltip_text('Color del fondo de la gráfica')
-
-        for x in lista:
-            combo_graficas.append_text(x)
-
-        for x in self.fondos:
-            combo_colores.append_text(x)
-
-        combo_graficas.set_active(0)
-        combo_colores.set_active(0)
-
-        boton_guardar.connect('clicked', self.guardar_archivo)
-        boton_agregar.connect('clicked', self.crear_variable)
-        boton_agregar.connect('clicked', self.actualizar_combo_borrar)
-        boton_aniadir.connect('clicked', self.aniadir_a_variable)
-        boton_configuraciones.connect('clicked', self.dialogo_configuraciones)
-        combo_graficas.connect('changed', self.cambiar_tipo)
-        boton_borrar.connect('clicked', self.borrar_columna)
-        boton_borrar.connect('clicked', self.actualizar_combo_borrar)
-        combo_colores.connect('changed', self.__set_background)
-
-        _hbox.pack_start(self.combo_borrar, False, False, 0)
-
-        item1.add(Gtk.Label(label='Gráfica de:  '))
-        item2.add(combo_graficas)
-        item3.add(_hbox)
-        item4.add(combo_colores)
-
-        toolbar.add(boton_configuraciones)
-        toolbar.add(Gtk.SeparatorToolItem())
-        toolbar.add(boton_guardar)
-        toolbar.add(Gtk.SeparatorToolItem())
-        toolbar.add(boton_agregar)
-        toolbar.add(boton_aniadir)
-        toolbar.add(item1)
-        toolbar.add(item2)
-        toolbar.add(item3)
-        toolbar.add(boton_borrar)
-        toolbar.add(Gtk.SeparatorToolItem())
-        toolbar.add(item4)
-        toolbar.add(separador)
-
-        self.actualizar_combo_borrar()
-
-        toolbar.set_show_close_button(True)
         self.set_titlebar(toolbar)
-
-        return toolbar
 
     def guardar_archivo(self, *args):
 
@@ -191,8 +129,9 @@ class CairoGrapher(Gtk.Window):
 
         dialogo.destroy()
 
-    def cambiar_tipo(self, combo):
+    def cambiar_tipo(self, toolbar):
 
+        combo = toolbar.get_plot_combo()
         lista = [
         'torta', 'barras horizontales', 'barras verticales', 'puntos',
         'anillo'
@@ -541,8 +480,7 @@ class CairoGrapher(Gtk.Window):
             b_scale.set_size_request(-1, 200)
             hbox_mas.set_size_request(-1, 200)
 
-            boton_cerrar.connect('clicked', self.borrar_valor,
-                self._vbox, label, entrada, spin)
+            boton_cerrar.connect('clicked', self.borrar_valor, label, entrada, spin, listbox, row)
 
             boton_mas.connect('clicked', self.mostrar, hbox_mas)
             r_scale.connect('value-changed', self.setear_color, 'Rojo', label)
@@ -608,9 +546,9 @@ class CairoGrapher(Gtk.Window):
 
         self.emit('reload')
 
-    def borrar_valor(self, widget, vbox, frame, entrada, spin):
+    def borrar_valor(self, widget, frame, entrada, spin, listbox, row):
 
-        vbox.remove(frame)
+        listbox.remove(row)
         del self.valores[frame.get_label()]
         self.l_valores = self.ordenar_lista()
 
@@ -626,8 +564,6 @@ class CairoGrapher(Gtk.Window):
         self.botones = []
         self.colores = []
         self.valores = {}
-        self.fondos = ['Blanco', 'Negro', 'Rojo', 'Azúl', 'Verde',
-            'Amalliro', 'Naranja']
         self.direccion = os.path.expanduser('~/Grafica.png')
         self.grafica = 'Gráfica de torta'
         self.nombre = 'Grafica'
@@ -788,8 +724,9 @@ class CairoGrapher(Gtk.Window):
         self.cuadricula = widget.get_active()
         self.emit('reload')
 
-    def __set_background(self, combo):
+    def __set_background(self, toolbar):
 
+        combo = toolbar.get_background_combo()
         lista = ['white', 'black', 'red', 'blue', 'green', 'yellow', 'orange']
         self.fondo = lista[combo.get_active()]
         self.fondo += ' light_gray'
