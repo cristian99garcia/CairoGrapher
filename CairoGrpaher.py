@@ -335,7 +335,7 @@ class CairoGrapher(Gtk.Window):
             entrada.connect('changed', self.cambiar_nombre_variable, label, row)
 
             entrada.set_text(_x)
-            hbox.set_spacing(20)
+            #hbox.set_spacing(20)
 
             hbox.pack_start(entrada, False, False, 0)
 
@@ -381,10 +381,9 @@ class CairoGrapher(Gtk.Window):
             r_scale.set_value(color[0])
             g_scale.set_value(color[1])
             b_scale.set_value(color[2])
-            r_scale.set_size_request(-1, 200)
-            g_scale.set_size_request(-1, 200)
-            b_scale.set_size_request(-1, 200)
-            hbox_mas.set_size_request(-1, 200)
+            r_scale.set_size_request(-1, 100)
+            g_scale.set_size_request(-1, 100)
+            b_scale.set_size_request(-1, 100)
 
             boton_cerrar.connect('clicked', self.borrar_valor, label, entrada, spin, listbox, row)
 
@@ -393,9 +392,9 @@ class CairoGrapher(Gtk.Window):
             g_scale.connect('value-changed', self.setear_color, 'Verde', row)
             b_scale.connect('value-changed', self.setear_color, 'Azúl', row)
 
-            hbox_mas.pack_start(r_scale, True, True, 5)
-            hbox_mas.pack_start(g_scale, True, True, 5)
-            hbox_mas.pack_start(b_scale, True, True, 5)
+            hbox_mas.pack_start(r_scale, False, False, 5)
+            hbox_mas.pack_start(g_scale, False, False, 5)
+            hbox_mas.pack_start(b_scale, False, False, 5)
 
             lista.append(hbox_mas)
 
