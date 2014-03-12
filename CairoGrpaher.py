@@ -344,7 +344,6 @@ class CairoGrapher(Gtk.Window):
             entrada.connect('changed', self.cambiar_nombre_variable, label, row)
 
             entrada.set_text(_x)
-            #hbox.set_spacing(20)
 
             hbox.pack_start(entrada, False, False, 0)
 
@@ -645,7 +644,6 @@ class CairoGrapher(Gtk.Window):
 
     def salir(self, *args):
 
-        #self.close()
         Gtk.main_quit()
 
 
