@@ -371,12 +371,9 @@ class CairoGrapher(Gtk.Window):
             r_adj = Gtk.Adjustment(color[0], 0.0, 1.0, 0.1, 0)
             g_adj = Gtk.Adjustment(color[1], 0.0, 1.0, 0.1)
             b_adj = Gtk.Adjustment(color[2], 0.0, 1.0, 0.1)
-            r_scale = Gtk.Scale(
-                orientation=Gtk.Orientation.VERTICAL, adjustment=r_adj)
-            g_scale = Gtk.Scale(
-                orientation=Gtk.Orientation.VERTICAL, adjustment=g_adj)
-            b_scale = Gtk.Scale(
-                orientation=Gtk.Orientation.VERTICAL, adjustment=b_adj)
+            r_scale = Gtk.Scale(orientation=Gtk.Orientation.VERTICAL, adjustment=r_adj)
+            g_scale = Gtk.Scale(orientation=Gtk.Orientation.VERTICAL, adjustment=g_adj)
+            b_scale = Gtk.Scale(orientation=Gtk.Orientation.VERTICAL, adjustment=b_adj)
 
             boton_cerrar.set_image(boton_cerrar.img)
             boton_mas.set_image(boton_mas.img)
@@ -450,10 +447,11 @@ class CairoGrapher(Gtk.Window):
 
         self.emit('reload')
 
-    def borrar_valor(self, widget, frame, entrada, spin, listbox, row):
+    def borrar_valor(self, widget, label, entrada, spin, listbox, row):
 
         listbox.remove(row)
-        del self.valores[frame.get_label()]
+        del self.colors[row]
+        del self.valores[label.get_label()]
         self.l_valores = self.ordenar_lista()
 
         self.widgets['Entrys'].remove(entrada)
