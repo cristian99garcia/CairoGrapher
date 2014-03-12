@@ -412,7 +412,8 @@ class CairoGrapher(Gtk.Window):
             hbox.pack_end(boton_mas, False, False, 10)
             row.add(hbox)
             listbox.add(row)
-            self._vbox.pack_start(listbox, False, False, 10)
+
+        self._vbox.pack_start(listbox, False, False, 10)
 
         if actualizar:
             self.emit('reload')
