@@ -217,7 +217,7 @@ class CairoGrapher(Gtk.Window):
 
                 CairoPlot.vertical_bar_plot(
                     self.direccion,
-                    self.valores,
+                    valores,
                     self.tamanyo_x,
                     self.tamanyo_y,
                     background=self.fondo,
@@ -282,9 +282,14 @@ class CairoGrapher(Gtk.Window):
     def transformar_a_barras(self):
 
         lista = []
+        valores = self.valores.keys()
+        valores.sort()
 
-        for x in self.valores.keys():
+        for x in valores:
             lista += self.valores[x]
+
+        while len(self.colores) < len(lista):
+            colores += [self.get_color()]
 
         return lista
 
@@ -293,10 +298,14 @@ class CairoGrapher(Gtk.Window):
         self.colores = []
 
         if self._vbox.get_children():
-            listbox = self._vbox.get_children()[0].get_children()
+            listbox = self._vbox.get_children()[0]
 
-            for x in listbox:
+            for x in listbox.get_children():
                 self.colores += [self.colors[x]]
+
+            if listbox.get_children() and len(self.colores) < len(listbox.get_children()[0].get_children()[0]):
+                while len(self.colores) < len(listbox.get_children()[0].get_children()[0]):
+                    self.colores += [self.get_color()]
 
     def borrar_columna(self, widget):
 
@@ -314,7 +323,7 @@ class CairoGrapher(Gtk.Window):
                 for x in self.l_valores[1:]:
                     self.valores[x] = [0]
 
-                self.valores[self.l_valores[0]] = [1]
+                self.valores[self.l_valores[0]] = [0]
 
             self.cargar_variables()
 
@@ -592,6 +601,9 @@ class CairoGrapher(Gtk.Window):
 
         for x in self.l_valores:
             self.valores[x] += [0]
+
+        if self.grafica.startswith('Gráfica de barras'):
+            self.colores += self.get_color()
 
         self.cargar_variables()
 
