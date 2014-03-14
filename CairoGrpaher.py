@@ -208,6 +208,7 @@ class CairoGrapher(Gtk.Window):
                     colors=self.colores)
 
         elif grafica == 'Gráfica de barras verticales':
+            print self.l_valores
             if self.valores:
                 if len(self.valores[self.l_valores[0]]) == 1:
                     valores = self.transformar_a_barras()
@@ -229,7 +230,7 @@ class CairoGrapher(Gtk.Window):
                     three_dimension=True,
                     series_labels=None,
                     x_labels=self.x_labels,
-                    y_labels=self.y_labels,
+                    y_labels=self.x_labels,
                     x_bounds=None,
                     y_bounds=None,
                     colors=self.colores)
@@ -493,7 +494,7 @@ class CairoGrapher(Gtk.Window):
             self.titulo_y = ''
             self.tamanyo_x = 600
             self.tamanyo_y = 600
-            self.fondo = 'white light_gray'
+            self.fondo = (1, 1, 1)
             self.borde = 0
             self.display_values = False
             self.axis = True
