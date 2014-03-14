@@ -53,12 +53,16 @@ class Toolbar(Gtk.HeaderBar):
         boton_borrar.set_tooltip_text('Borrar la columna seleccionada')
         self.combo_colores.set_tooltip_text('Color del fondo de la gráfica')
 
+        self.combo_borrar.append_text('Columna 1')
+
         for x in self.lista:
             self.combo_graficas.append_text(x)
 
         for x in self.fondos:
             self.combo_colores.append_text(x)
 
+        self.combo_borrar.set_active(0)
+        self.combo_borrar.set_sensitive(False)
         self.combo_graficas.set_active(0)
         self.combo_colores.set_active(0)
 
