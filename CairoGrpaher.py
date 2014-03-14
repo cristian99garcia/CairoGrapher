@@ -181,6 +181,9 @@ class CairoGrapher(Gtk.Window):
             self.valores[self.l_valores[0]] = [1]
 
         if grafica == 'Gráfica de barras horizontales':
+            y_labels = self.l_valores
+            y_labels.sort()
+
             if self.valores:
                 if len(self.valores[self.l_valores[0]]) == 1:
                     valores = self.transformar_a_barras()
@@ -201,14 +204,17 @@ class CairoGrapher(Gtk.Window):
                     stack=False,
                     three_dimension=True,
                     series_labels=None,
-                    x_labels=self.x_labels,
-                    y_labels=self.y_labels,
+                    x_labels=[],
+                    y_labels=y_labels,
                     x_bounds=None,
                     y_bounds=None,
                     colors=self.colores)
 
         elif grafica == 'Gráfica de barras verticales':
-            print self.l_valores
+            x_labels = self.l_valores
+            y_labels = []
+            x_labels.sort()
+
             if self.valores:
                 if len(self.valores[self.l_valores[0]]) == 1:
                     valores = self.transformar_a_barras()
@@ -229,8 +235,8 @@ class CairoGrapher(Gtk.Window):
                     stack=False,
                     three_dimension=True,
                     series_labels=None,
-                    x_labels=self.x_labels,
-                    y_labels=self.x_labels,
+                    x_labels=x_labels,
+                    y_labels=y_labels,
                     x_bounds=None,
                     y_bounds=None,
                     colors=self.colores)
@@ -290,7 +296,7 @@ class CairoGrapher(Gtk.Window):
             lista += self.valores[x]
 
         while len(self.colores) < len(lista):
-            colores += [self.get_color()]
+            self.colores += [self.get_color()]
 
         return lista
 
