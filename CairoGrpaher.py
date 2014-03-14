@@ -323,12 +323,11 @@ class CairoGrapher(Gtk.Window):
                 for x in self.l_valores[1:]:
                     self.valores[x] = [0]
 
-                self.valores[self.l_valores[0]] = [0]
+                self.valores[self.l_valores[0]] = [1]
 
             self.cargar_variables()
 
         self.actualizar_combo_borrar()
-        self.show_all()
 
     def cargar_variables(self, actualizar=True):
 
@@ -421,6 +420,8 @@ class CairoGrapher(Gtk.Window):
             hbox.pack_end(boton_mas, False, False, 10)
             row.add(hbox)
             listbox.add(row)
+            listbox.show_all()
+            hbox_mas.hide()
 
         self._vbox.pack_start(listbox, False, False, 10)
 
