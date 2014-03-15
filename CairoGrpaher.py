@@ -25,6 +25,7 @@ import CairoPlot
 from Widgets import Toolbar
 from Widgets import PlotArea
 from Widgets import SettingsDialog
+from Widgets import SaveFilesDialog
 
 from gi.repository import Gtk
 from gi.repository import Gdk
@@ -104,29 +105,13 @@ class CairoGrapher(Gtk.Window):
 
     def guardar_archivo(self, *args):
 
-        dialogo = Gtk.FileChooserDialog(
-            buttons=(Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
-            Gtk.STOCK_SAVE, Gtk.ResponseType.ACCEPT))
-
-        dialogo.set_transient_for(self)
-        dialogo.set_modal(True)
-        dialogo.set_title('Guardar gráfica')
-        dialogo.set_current_folder(os.path.expanduser('~/'))
-        dialogo.set_action(Gtk.FileChooserAction.SAVE)
-
-        respuesta = dialogo.run()
-
-        if respuesta == Gtk.ResponseType.ACCEPT:
-            direccion = dialogo.get_uri()
-            direccion = direccion.split('file://')[1]
-
-            if not direccion.endswith('.png'):
-                direccion += '.png'
-
+        def save_file(widget, direccion):
+            
             self.direccion = direccion
             self.emit('reload')
 
-        dialogo.destroy()
+        d = SaveFilesDialog()
+        d.connect('save-file', save_file)
 
     def cambiar_tipo(self, toolbar):
 

@@ -274,3 +274,63 @@ class SettingsDialog(Gtk.Dialog):
         self.diccionario['fondo'] = color
         
         self.emit('settings-changed', self.diccionario)
+
+
+class SaveFilesDialog(Gtk.FileChooserDialog):
+    
+    __gsignals__ = {
+        'save-file': (GObject.SIGNAL_RUN_FIRST, None, [str]),
+        }
+    
+    def __init__(self):
+        
+        Gtk.FileChooserDialog.__init__(self)
+
+        self.add_buttons(Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL, Gtk.STOCK_SAVE, Gtk.ResponseType.ACCEPT)
+
+        self.set_modal(True)
+        self.set_title('Guardar gráfica')
+        self.set_current_folder(os.path.expanduser('~/'))
+        self.set_action(Gtk.FileChooserAction.SAVE)
+
+        self.boton_guardar = self.get_children()[0].get_children()[1].get_children()[0]
+        self.boton_cancelar = self.get_children()[0].get_children()[1].get_children()[1]
+
+        self.boton_guardar.connect('clicked', self.file_save)
+        self.boton_cancelar.connect('clicked', lambda x: self.destroy())
+    
+        self.show_all()
+
+    def file_save(self, widget, reemplazar=False):
+        
+        direccion = self.get_uri()
+        direccion = direccion.split('file://')[1]
+
+        if not direccion.endswith('.png'):
+            direccion += '.png'
+
+        if not os.path.exists(direccion) or reemplazar:
+            self.emit('save-file', direccion)
+            self.destroy()
+        
+        else:
+            dialogo = Gtk.Dialog()
+            vbox = dialogo.get_content_area()
+            hbox = Gtk.HBox()
+            boton_si = Gtk.Button.new_from_stock(Gtk.STOCK_YES)
+            boton_no = Gtk.Button.new_from_stock(Gtk.STOCK_NO)
+
+            dialogo.set_transient_for(self)
+            dialogo.set_modal(True)
+            dialogo.set_title('El archivo seleccionado ya existe')
+            
+            boton_si.connect('clicked', self.file_save, True)
+            boton_si.connect('clicked', lambda x: dialogo.destroy())
+            boton_no.connect('clicked', lambda x: dialogo.destroy())
+
+            hbox.pack_start(boton_si, False, False, 20)
+            hbox.pack_start(boton_no, False, False, 0)
+            vbox.pack_start(Gtk.Label('¿Desea reemplazarlo?'), False, False, 10)
+            vbox.pack_start(hbox, False, False, 0)
+            
+            dialogo.show_all()
