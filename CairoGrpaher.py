@@ -317,20 +317,34 @@ class CairoGrapher(Gtk.Window):
     def borrar_columna(self, widget):
 
         columna = self.combo_borrar.get_active()
+        cambiar = True
 
         if self.l_valores and len(self.valores[self.l_valores[0]]) >= columna:
             self.limpiar_vbox()
+            self.l_valores = self.valores.keys()
+            self.l_valores.sort()
+
+            for i in self.l_valores:
+                lista = self.valores[i]
+                n = lista[:columna] + lista[columna + 1:]
+                self.valores[i] = n
+
+            """
+            if not self.valores or self.valores[self.l_valores[0]] == []:
+                for x in self.l_valores:
+                    self.valores[x] = [0.0]
+
+                self.valores[self.l_valores[0]] = [1.0]
 
             for x in self.l_valores:
-                lista = self.valores[x]
-                lista = lista[:columna] + lista[columna + 1:]
-                self.valores[x] = lista
+                for i in self.valores[x]:
+                    if i > 0:
+                        cambiar = False
+                        break
 
-            if not self.valores or self.valores[self.l_valores[0]] == []:
-                for x in self.l_valores[1:]:
-                    self.valores[x] = [0]
-
-                self.valores[self.l_valores[0]] = [1]
+            if cambiar:
+                self.valores[self.l_valores[0]] = [1.0]
+            """
 
             self.cargar_variables()
 
