@@ -99,7 +99,6 @@ class CairoGrapher(Gtk.Window):
         toolbar.connect('change-plot', self.cambiar_tipo)
         toolbar.connect('remove-column', self.borrar_columna)
         toolbar.connect('remove-column', self.actualizar_combo_borrar)
-        toolbar.connect('background-changed', self.__set_background)
 
         self.set_titlebar(toolbar)
 
@@ -158,6 +157,7 @@ class CairoGrapher(Gtk.Window):
         self.rounded_corners = dicc['rounded_corners']
         self.display_values = dicc['display_values']
         self.cuadricula = dicc['gird']
+        self.fondo = dicc['fondo']
 
         self.emit('reload')
 
@@ -526,7 +526,8 @@ class CairoGrapher(Gtk.Window):
                 'axis': self.axis,
                 'rounded_corners': self.rounded_corners,
                 'display_values': self.display_values,
-                'gird': self.cuadricula
+                'gird': self.cuadricula,
+                'fondo': self.fondo,
                 }
 
     def cambiar_nombre_variable(self, widget, label, row):
@@ -652,15 +653,6 @@ class CairoGrapher(Gtk.Window):
 
         conjunto = widget.variable
         self.valores[conjunto][valor] = widget.get_value()
-        self.emit('reload')
-
-    def __set_background(self, toolbar):
-
-        combo = toolbar.get_background_combo()
-        lista = ['white', 'black', 'red', 'blue', 'green', 'yellow', 'orange']
-        self.fondo = lista[combo.get_active()]
-        self.fondo += ' light_gray'
-
         self.emit('reload')
 
     def salir(self, *args):

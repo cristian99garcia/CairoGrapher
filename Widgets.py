@@ -19,7 +19,6 @@ class Toolbar(Gtk.HeaderBar):
         'settings-dialog': (GObject.SIGNAL_RUN_FIRST, None, []),
         'change-plot': (GObject.SIGNAL_RUN_FIRST, None, []),
         'remove-column': (GObject.SIGNAL_RUN_FIRST, None, []),
-        'background-changed': (GObject.SIGNAL_RUN_FIRST, None, []),
 
         }
 
@@ -32,11 +31,6 @@ class Toolbar(Gtk.HeaderBar):
             'puntos', 'anillo'
             ]
 
-        self.fondos = [
-            'Blanco', 'Negro', 'Rojo', 'Azúl', 'Verde',
-            'Amalliro', 'Naranja'
-            ]
-
         boton_configuraciones = Gtk.ToolButton(Gtk.STOCK_PREFERENCES)
         boton_guardar = Gtk.ToolButton(Gtk.STOCK_SAVE)
         boton_variable = Gtk.ToolButton(Gtk.STOCK_ADD)
@@ -45,26 +39,20 @@ class Toolbar(Gtk.HeaderBar):
         self.combo_graficas = Gtk.ComboBoxText()
         self.combo_borrar = Gtk.ComboBoxText()
         self.combo_borrar.boton = boton_borrar
-        self.combo_colores = Gtk.ComboBoxText()
 
         boton_guardar.set_tooltip_text('Guardar gráfica en un archivo, todos los cambios posteriores serán guardados automáticamente')
         boton_variable.set_tooltip_text('Crear nueva variable')
         boton_columna.set_tooltip_text('Agregar columna a las variables')
         boton_borrar.set_tooltip_text('Borrar la columna seleccionada')
-        self.combo_colores.set_tooltip_text('Color del fondo de la gráfica')
 
         self.combo_borrar.append_text('Columna 1')
 
         for x in self.lista:
             self.combo_graficas.append_text(x)
 
-        for x in self.fondos:
-            self.combo_colores.append_text(x)
-
         self.combo_borrar.set_active(0)
         self.combo_borrar.set_sensitive(False)
         self.combo_graficas.set_active(0)
-        self.combo_colores.set_active(0)
 
         boton_guardar.connect('clicked', lambda x: self.emit('save'))
         boton_variable.connect('clicked', lambda x: self.emit('new-variable'))
@@ -72,7 +60,6 @@ class Toolbar(Gtk.HeaderBar):
         boton_configuraciones.connect('clicked', lambda x: self.emit('settings-dialog'))
         self.combo_graficas.connect('changed', lambda x: self.emit('change-plot'))
         boton_borrar.connect('clicked', lambda x: self.emit('remove-column'))
-        self.combo_colores.connect('changed', lambda x: self.emit('background-changed'))
 
         self.add(boton_configuraciones)
         self.add(Gtk.SeparatorToolItem())
@@ -84,9 +71,6 @@ class Toolbar(Gtk.HeaderBar):
         self.add(self.combo_graficas)
         self.add(self.combo_borrar)
         self.add(boton_borrar)
-        self.add(Gtk.SeparatorToolItem())
-        self.add(Gtk.Label('Color del fondo: '))
-        self.add(self.combo_colores)
 
         #self.actualizar_combo_borrar()
 
@@ -183,10 +167,45 @@ class SettingsDialog(Gtk.Dialog):
 
         spin.connect('value-changed', self.set_var_spin, 'inner_radius')
 
-        hbox.pack_start(Gtk.Label(
-            label='Tamaño del centro de la gráfica de anillo'), False, False, 0)
+        hbox.pack_start(Gtk.Label(label='Tamaño del centro de la gráfica de anillo'), False, False, 0)
         hbox.pack_start(spin, True, True, 0)
 
+        row.add(hbox)
+        self.listbox.add(row)
+
+        row = Gtk.ListBoxRow()
+        hbox = Gtk.HBox()
+        adj = Gtk.Adjustment(dicc['fondo'][0], 0.0, 1.0, 0.1, 0)
+        scale = Gtk.Scale(orientation=Gtk.Orientation.HORIZONTAL, adjustment=adj)
+        
+        scale.connect('value-changed', self.set_background, 'r')
+
+        hbox.pack_start(Gtk.Label('Cantidad de rojo en el fondo: '), False, False, 10)
+        hbox.pack_end(scale, True, True, 0)
+        row.add(hbox)
+        self.listbox.add(row)
+
+        row = Gtk.ListBoxRow()
+        hbox = Gtk.HBox()
+        adj = Gtk.Adjustment(dicc['fondo'][1], 0.0, 1.0, 0.1, 0)
+        scale = Gtk.Scale(orientation=Gtk.Orientation.HORIZONTAL, adjustment=adj)
+        
+        scale.connect('value-changed', self.set_background, 'g')
+
+        hbox.pack_start(Gtk.Label('Cantidad de verde en el fondo: '), False, False, 10)
+        hbox.pack_end(scale, True, True, 0)
+        row.add(hbox)
+        self.listbox.add(row)
+
+        row = Gtk.ListBoxRow()
+        hbox = Gtk.HBox()
+        adj = Gtk.Adjustment(dicc['fondo'][2], 0.0, 1.0, 0.1, 0)
+        scale = Gtk.Scale(orientation=Gtk.Orientation.HORIZONTAL, adjustment=adj)
+        
+        scale.connect('value-changed', self.set_background, 'b')
+
+        hbox.pack_start(Gtk.Label('Cantidad de azúl en el fondo: '), False, False, 10)
+        hbox.pack_end(scale, True, True, 0)
         row.add(hbox)
         self.listbox.add(row)
 
@@ -236,4 +255,22 @@ class SettingsDialog(Gtk.Dialog):
     def set_var_switch(self, widget, gparam, variable):
 
         self.diccionario[variable] = widget.get_active()
+        self.emit('settings-changed', self.diccionario)
+
+    def set_background(self, widget, color):
+        
+        actual = self.diccionario['fondo']
+        cantidad = widget.get_value()
+
+        if color == 'r':
+            color = (cantidad,) + actual[1:]
+
+        elif color == 'g':
+            color = actual[:1] + (cantidad,) + actual[2:]
+
+        elif color == 'b':
+            color =  actual[:2] + (cantidad,)
+
+        self.diccionario['fondo'] = color
+        
         self.emit('settings-changed', self.diccionario)
