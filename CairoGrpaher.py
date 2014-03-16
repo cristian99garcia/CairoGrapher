@@ -44,6 +44,8 @@ class CairoGrapher(Gtk.Window):
 
         self.cargar_configuracion()
 
+        self.set_size_request(600, 480)
+
         self.vbox = Gtk.VBox()
         self._vbox = Gtk.VBox()
         self.paned = Gtk.HPaned()
