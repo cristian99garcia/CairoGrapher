@@ -7,6 +7,7 @@
 import os
 
 from gi.repository import Gtk
+from gi.repository import GdkPixbuf
 from gi.repository import GObject
 
 
@@ -36,9 +37,9 @@ class Toolbar(Gtk.HeaderBar):
         boton_variable = Gtk.ToolButton(Gtk.STOCK_ADD)
         boton_columna = Gtk.ToolButton(Gtk.STOCK_ADD)
         boton_borrar = Gtk.ToolButton(Gtk.STOCK_REMOVE)
-        self.combo_graficas = Gtk.ComboBoxText()
-        self.combo_borrar = Gtk.ComboBoxText()
-        self.combo_borrar.boton = boton_borrar
+        modelo = Gtk.ListStore(GdkPixbuf.Pixbuf, str)
+        renderer_pixbuf = Gtk.CellRendererPixbuf()
+        renderer_text = Gtk.CellRendererText()
 
         boton_guardar.set_tooltip_text('Guardar gráfica en un archivo, todos los cambios posteriores serán guardados automáticamente')
         boton_variable.set_tooltip_text('Crear nueva variable')
@@ -46,10 +47,27 @@ class Toolbar(Gtk.HeaderBar):
         boton_borrar.set_tooltip_text('Borrar la columna seleccionada')
         boton_borrar.set_sensitive(False)
 
+        for x in self.lista:
+            if ' ' in x:
+                nombre = x.split(' ')[-1]
+            
+            else:
+                nombre = x
+
+            direccion = os.path.join(os.path.dirname(__file__), 'images/' + nombre + '.png')
+            pix = GdkPixbuf.Pixbuf.new_from_file_at_size(direccion, 20, 20)
+            modelo.append([pix, x])
+
+        self.combo_graficas = Gtk.ComboBox(model=modelo)
+        self.combo_borrar = Gtk.ComboBoxText()
+        self.combo_borrar.boton = boton_borrar
+
+        self.combo_graficas.pack_start(renderer_pixbuf, False)
+        self.combo_graficas.pack_start(renderer_text, False)
         self.combo_borrar.append_text('Columna 1')
 
-        for x in self.lista:
-            self.combo_graficas.append_text(x)
+        self.combo_graficas.add_attribute(renderer_pixbuf, 'pixbuf', 0)
+        self.combo_graficas.add_attribute(renderer_text ,'text', 1)
 
         self.combo_borrar.set_active(0)
         self.combo_borrar.set_sensitive(False)
