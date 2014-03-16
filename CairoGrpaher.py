@@ -312,7 +312,7 @@ class CairoGrapher(Gtk.Window):
 
             for x in self.l_valores:
                 lista = self.valores[x]
-                lista.remove(columna)
+                lista.remove(lista[columna])
 
             self.cargar_variables()
 
