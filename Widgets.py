@@ -44,6 +44,7 @@ class Toolbar(Gtk.HeaderBar):
         boton_variable.set_tooltip_text('Crear nueva variable')
         boton_columna.set_tooltip_text('Agregar columna a las variables')
         boton_borrar.set_tooltip_text('Borrar la columna seleccionada')
+        boton_borrar.set_sensitive(False)
 
         self.combo_borrar.append_text('Columna 1')
 
