@@ -73,6 +73,8 @@ class CairoGrapher(Gtk.Window):
 
     def actualizar_combo_borrar(self, *args):
 
+        self.l_valores = sorted(self.valores.keys())
+
         if self.l_valores:
             columnas = len(self.valores[self.l_valores[0]])
 
@@ -304,15 +306,25 @@ class CairoGrapher(Gtk.Window):
     def borrar_columna(self, widget):
 
         columna = self.combo_borrar.get_active()
+        cambiar = True
 
         if self.l_valores and len(self.valores[self.l_valores[0]]) >= columna:
             self.limpiar_vbox()
-            self.l_valores = self.valores.keys()
-            self.l_valores.sort()
+            self.l_valores = sorted(self.valores.keys())
 
             for x in self.l_valores:
-                lista = self.valores[x]
-                lista.remove(lista[columna])
+                self.valores[x].remove(self.valores[x][columna])
+
+                c = True
+
+                for i in self.valores[x]:
+                    if i > 0:
+                        c = False
+                        break
+                
+                if c and cambiar:
+                    self.valores[x][0] = 1.0
+                    cambiar = False
 
             self.cargar_variables()
 
@@ -320,7 +332,8 @@ class CairoGrapher(Gtk.Window):
 
     def cargar_variables(self, actualizar=True):
 
-        self.l_valores = self.ordenar_lista()
+        #self.l_valores = self.ordenar_lista()
+        #self.l_valores = sorted(self.valores.keys())
         self.colors = {}
         lista = []
         listbox = Gtk.ListBox()
