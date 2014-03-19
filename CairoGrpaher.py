@@ -45,6 +45,7 @@ class CairoGrapher(Gtk.Window):
         self.cargar_configuracion()
 
         self.set_size_request(600, 480)
+        self.set_title('CairoGrapher')
 
         self.vbox = Gtk.VBox()
         self._vbox = Gtk.VBox()
@@ -105,7 +106,8 @@ class CairoGrapher(Gtk.Window):
         toolbar.connect('remove-column', self.borrar_columna)
         toolbar.connect('remove-column', self.actualizar_combo_borrar)
 
-        self.set_titlebar(toolbar)
+        self.vbox.pack_start(toolbar, False, False, 0)
+        #self.set_titlebar(toolbar)
 
     def guardar_archivo(self, *args):
 
@@ -299,8 +301,8 @@ class CairoGrapher(Gtk.Window):
             for x in listbox.get_children():
                 self.colores += [self.colors[x]]
 
-            if listbox.get_children() and len(self.colores) < len(listbox.get_children()[0].get_children()[0]):
-                while len(self.colores) < len(listbox.get_children()[0].get_children()[0]):
+            if listbox.get_children() and len(self.colores) < len(listbox.get_children()[0].get_children()):
+                while len(self.colores) < len(listbox.get_children()[0].get_children()):
                     self.colores += [self.get_color()]
 
     def borrar_columna(self, widget):
@@ -336,22 +338,24 @@ class CairoGrapher(Gtk.Window):
         #self.l_valores = sorted(self.valores.keys())
         self.colors = {}
         lista = []
-        listbox = Gtk.ListBox()
+        #listbox = Gtk.ListBox()
+        listbox = Gtk.VBox()
 
-        listbox.set_selection_mode(Gtk.SelectionMode.NONE)
+        #listbox.set_selection_mode(Gtk.SelectionMode.NONE)
         self.limpiar_vbox()
 
         for _x in self.l_valores:
-            row = Gtk.ListBoxRow()
+            #row = Gtk.ListBoxRow()
             hbox = Gtk.HBox()
             label = Gtk.Label(_x)
             entrada = Gtk.Entry()
             numero = 0
-            self.colors[row] = self.get_color()
+            #self.colors[row] = self.get_color()
+            self.colors[hbox] = self.get_color()
 
             self.widgets['Entrys'].append(entrada)
 
-            entrada.connect('changed', self.cambiar_nombre_variable, label, row)
+            entrada.connect('changed', self.cambiar_nombre_variable, label, hbox)
 
             entrada.set_text(_x)
 
@@ -379,7 +383,7 @@ class CairoGrapher(Gtk.Window):
 
                 numero += 1
 
-            color = self.colors[row]
+            color = self.colors[hbox]
 
             boton_cerrar = Gtk.Button()
             boton_cerrar.img = Gtk.Image.new_from_stock(Gtk.STOCK_CLOSE, Gtk.IconSize.BUTTON)
@@ -403,12 +407,12 @@ class CairoGrapher(Gtk.Window):
             g_scale.set_size_request(-1, 100)
             b_scale.set_size_request(-1, 100)
 
-            boton_cerrar.connect('clicked', self.borrar_valor, label, entrada, spin, listbox, row)
+            boton_cerrar.connect('clicked', self.borrar_valor, label, entrada, spin, listbox, hbox)
 
             boton_mas.connect('clicked', self.mostrar, hbox_mas)
-            r_scale.connect('value-changed', self.setear_color, 'Rojo', row)
-            g_scale.connect('value-changed', self.setear_color, 'Verde', row)
-            b_scale.connect('value-changed', self.setear_color, 'Azúl', row)
+            r_scale.connect('value-changed', self.setear_color, 'Rojo', hbox)
+            g_scale.connect('value-changed', self.setear_color, 'Verde', hbox)
+            b_scale.connect('value-changed', self.setear_color, 'Azúl', hbox)
 
             hbox_mas.pack_start(r_scale, False, False, 5)
             hbox_mas.pack_start(g_scale, False, False, 5)
@@ -420,8 +424,9 @@ class CairoGrapher(Gtk.Window):
             hbox.pack_end(boton_cerrar, False, False, 0)
             hbox.pack_end(hbox_mas, True, True, 0)
             hbox.pack_end(boton_mas, False, False, 10)
-            row.add(hbox)
-            listbox.add(row)
+            #row.add(hbox)
+            #listbox.add(row)
+            listbox.pack_start(hbox, False, False, 2)
             listbox.show_all()
             hbox_mas.hide()
 

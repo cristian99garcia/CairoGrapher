@@ -11,7 +11,7 @@ from gi.repository import GdkPixbuf
 from gi.repository import GObject
 
 
-class Toolbar(Gtk.HeaderBar):
+class Toolbar(Gtk.Toolbar):
 
     __gsignals__ = {
         'save': (GObject.SIGNAL_RUN_FIRST, None, []),
@@ -25,7 +25,7 @@ class Toolbar(Gtk.HeaderBar):
 
     def __init__(self):
 
-        Gtk.HeaderBar.__init__(self)
+        Gtk.Toolbar.__init__(self)
 
         self.lista = [
             'torta', 'barras horizontales', 'barras verticales',
@@ -40,6 +40,9 @@ class Toolbar(Gtk.HeaderBar):
         modelo = Gtk.ListStore(GdkPixbuf.Pixbuf, str)
         renderer_pixbuf = Gtk.CellRendererPixbuf()
         renderer_text = Gtk.CellRendererText()
+        item1 = Gtk.ToolItem()
+        item2 = Gtk.ToolItem()
+        item3 = Gtk.ToolItem()
 
         boton_guardar.set_tooltip_text('Guardar gráfica en un archivo, todos los cambios posteriores serán guardados automáticamente')
         boton_variable.set_tooltip_text('Crear nueva variable')
@@ -80,20 +83,26 @@ class Toolbar(Gtk.HeaderBar):
         self.combo_graficas.connect('changed', lambda x: self.emit('change-plot'))
         boton_borrar.connect('clicked', lambda x: self.emit('remove-column'))
 
+        item1.add(Gtk.Label('Gráfica de: '))
+        item2.add(self.combo_graficas)
+        item3.add(self.combo_borrar)
         self.add(boton_configuraciones)
         self.add(Gtk.SeparatorToolItem())
         self.add(boton_guardar)
         self.add(Gtk.SeparatorToolItem())
         self.add(boton_variable)
         self.add(boton_columna)
-        self.add(Gtk.Label(label='Gráfica de:  '))
-        self.add(self.combo_graficas)
-        self.add(self.combo_borrar)
+        #self.add(Gtk.Label(label='Gráfica de:  '))
+        #self.add(self.combo_graficas)
+        #self.add(self.combo_borrar)
+        self.add(item1)
+        self.add(item2)
+        self.add(item3)
         self.add(boton_borrar)
 
         #self.actualizar_combo_borrar()
 
-        self.set_show_close_button(True)
+        #self.set_show_close_button(True)
 
     def get_plot_combo(self):
 
@@ -127,14 +136,14 @@ class SettingsDialog(Gtk.Dialog):
         Gtk.Dialog.__init__(self)
 
         self.diccionario = dicc
-        self.listbox = Gtk.ListBox()
+        self.listbox = Gtk.VBox() # Gtk.ListBox()
 
         self.set_modal(True)
         self.set_title('Configuraciones')
         self.set_resizable(False)
-        self.listbox.set_selection_mode(Gtk.SelectionMode.NONE)
+        #self.listbox.set_selection_mode(Gtk.SelectionMode.NONE)
 
-        row = Gtk.ListBoxRow()
+        #row = Gtk.ListBoxRow()
         hbox = Gtk.HBox()
         spin_x = Gtk.SpinButton()
         spin_y = Gtk.SpinButton()
@@ -154,10 +163,11 @@ class SettingsDialog(Gtk.Dialog):
         hbox.pack_end(spin_y, False, False, 0)
         hbox.pack_end(spin_x, False, False, 10)
 
-        row.add(hbox)
-        self.listbox.add(row)
+        #row.add(hbox)
+        #self.listbox.add(row)
+        self.listbox.pack_start(hbox, False, False, 5)
 
-        row = Gtk.ListBoxRow()
+        #row = Gtk.ListBoxRow()
         hbox = Gtk.HBox()
         spin = Gtk.SpinButton()
         adj = Gtk.Adjustment(dicc['borde'], 0, 200, 1, 10, 0)
@@ -170,10 +180,11 @@ class SettingsDialog(Gtk.Dialog):
         hbox.pack_start(Gtk.Label(label='Borde'), False, False, 10)
         hbox.pack_end(spin, False, False, 0)
 
-        row.add(hbox)
-        self.listbox.add(row)
+        #row.add(hbox)
+        #self.listbox.add(row)
+        self.listbox.pack_start(hbox, False, False, 5)
 
-        row = Gtk.ListBoxRow()
+        #row = Gtk.ListBoxRow()
         hbox = Gtk.HBox()
         spin = Gtk.SpinButton()
         adj = Gtk.Adjustment(dicc['inner_radius'], 0.1, 0.9, 0.1, 0)
@@ -189,10 +200,11 @@ class SettingsDialog(Gtk.Dialog):
         hbox.pack_start(Gtk.Label(label='Tamaño del centro de la gráfica de anillo'), False, False, 0)
         hbox.pack_start(spin, True, True, 0)
 
-        row.add(hbox)
-        self.listbox.add(row)
+        #row.add(hbox)
+        #self.listbox.add(row)
+        self.listbox.pack_start(hbox, False, False, 5)
 
-        row = Gtk.ListBoxRow()
+        #row = Gtk.ListBoxRow()
         hbox = Gtk.HBox()
         adj = Gtk.Adjustment(dicc['fondo'][0], 0.0, 1.0, 0.1, 0)
         scale = Gtk.Scale(orientation=Gtk.Orientation.HORIZONTAL, adjustment=adj)
@@ -201,10 +213,12 @@ class SettingsDialog(Gtk.Dialog):
 
         hbox.pack_start(Gtk.Label('Cantidad de rojo en el fondo: '), False, False, 10)
         hbox.pack_end(scale, True, True, 0)
-        row.add(hbox)
-        self.listbox.add(row)
 
-        row = Gtk.ListBoxRow()
+        #row.add(hbox)
+        #self.listbox.add(row)
+        self.listbox.pack_start(hbox, False, False, 5)
+
+        #row = Gtk.ListBoxRow()
         hbox = Gtk.HBox()
         adj = Gtk.Adjustment(dicc['fondo'][1], 0.0, 1.0, 0.1, 0)
         scale = Gtk.Scale(orientation=Gtk.Orientation.HORIZONTAL, adjustment=adj)
@@ -213,10 +227,12 @@ class SettingsDialog(Gtk.Dialog):
 
         hbox.pack_start(Gtk.Label('Cantidad de verde en el fondo: '), False, False, 10)
         hbox.pack_end(scale, True, True, 0)
-        row.add(hbox)
-        self.listbox.add(row)
 
-        row = Gtk.ListBoxRow()
+        #row.add(hbox)
+        #self.listbox.add(row)
+        self.listbox.pack_start(hbox, False, False, 5)
+
+        #row = Gtk.ListBoxRow()
         hbox = Gtk.HBox()
         adj = Gtk.Adjustment(dicc['fondo'][2], 0.0, 1.0, 0.1, 0)
         scale = Gtk.Scale(orientation=Gtk.Orientation.HORIZONTAL, adjustment=adj)
@@ -225,8 +241,10 @@ class SettingsDialog(Gtk.Dialog):
 
         hbox.pack_start(Gtk.Label('Cantidad de azúl en el fondo: '), False, False, 10)
         hbox.pack_end(scale, True, True, 0)
-        row.add(hbox)
-        self.listbox.add(row)
+        
+        #row.add(hbox)
+        #self.listbox.add(row)
+        self.listbox.pack_start(hbox, False, False, 5)
 
         s_ejes = self.hbox_with_switch('Presencia de los ejes', dicc['axis'], dicc['grafica'] == 'Gráfica de puntos')
         s_esquinas = self.hbox_with_switch('Bordes redondeados', dicc['rounded_corners'], dicc['grafica'] in ['Gráfica de barras verticales', 'Gráfica de barras horizontales'])
@@ -241,13 +259,14 @@ class SettingsDialog(Gtk.Dialog):
 
     def hbox_with_switch(self, label, variable, ifvar):
 
-        row = Gtk.HBox()
+        #row = Gtk.HBox()
         hbox = Gtk.HBox()
         switch = Gtk.Switch()
 
         switch.set_active(variable)
         switch.set_use_action_appearance(True)
-        row.set_sensitive(ifvar)
+        #row.set_sensitive(ifvar)
+        hbox.set_sensitive(ifvar)
 
         if label == 'Presencia de los ejes':
             switch.set_tooltip_text('Esta opción solo se habilitará si está seleccionada la "Gráfica de puntos"')
@@ -261,8 +280,9 @@ class SettingsDialog(Gtk.Dialog):
         hbox.pack_start(Gtk.Label(label=label), False, False, 0)
         hbox.pack_end(switch, False, False, 0)
 
-        row.add(hbox)
-        self.listbox.add(row)
+        #row.add(hbox)
+        #self.listbox.add(row)
+        self.listbox.pack_start(hbox, False, False, 5)
 
         return switch
 
