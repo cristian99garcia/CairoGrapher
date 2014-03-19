@@ -94,7 +94,7 @@ class Toolbar(gtk.Toolbar):
         self.add(gtk.SeparatorToolItem())
         self.add(boton_variable)
         self.add(boton_columna)
-        #self.add(gtk.Label(label='Gráfica de:  '))
+        #self.add(gtk.Label('Gráfica de:  '))
         #self.add(self.combo_graficas)
         #self.add(self.combo_borrar)
         self.add(item1)
@@ -115,25 +115,16 @@ class Toolbar(gtk.Toolbar):
         return self.combo_colores
 
 
-class PlotArea(gtk.VBox):
+class PlotArea(gtk.Image):
 
     def __init__(self):
 
-        gtk.VBox.__init__(self)
-
-        self.pack_start(gtk.Image())
+        gtk.Image.__init__(self)
 
     def set_plot(self, filename):
 
-        self.remove(self.get_children()[0])
-        
-        imagen = gtk.Image()
-
         if os.path.exists(filename):
-            imagen.set_from_file(filename)
-
-        self.pack_start(imagen, True, True, 0)
-        self.show_all()
+            self.set_from_file(filename)
 
 
 class SettingsDialog(gtk.Dialog):
@@ -169,7 +160,7 @@ class SettingsDialog(gtk.Dialog):
         spin_y.set_value(dicc['tamanyo_y'])
         spin_y.connect('value-changed', self.set_var_spin, 'tamanyo_y')
 
-        hbox.pack_start(gtk.Label(label='Tamaño de la gráfica:'),
+        hbox.pack_start(gtk.Label('Tamaño de la gráfica:'),
             False, False, 10)
         hbox.pack_end(spin_y, False, False, 0)
         hbox.pack_end(spin_x, False, False, 10)
@@ -188,7 +179,7 @@ class SettingsDialog(gtk.Dialog):
         spin.set_tooltip_text('Esta opción solo se habilitará, cuando esté seleccionada la "Gráfica de anillo"')
         spin.connect('value-changed', self.set_var_spin, 'borde')
 
-        hbox.pack_start(gtk.Label(label='Borde'), False, False, 10)
+        hbox.pack_start(gtk.Label('Borde'), False, False, 10)
         hbox.pack_end(spin, False, False, 0)
 
         #row.add(hbox)
@@ -208,7 +199,7 @@ class SettingsDialog(gtk.Dialog):
 
         spin.connect('value-changed', self.set_var_spin, 'inner_radius')
 
-        hbox.pack_start(gtk.Label(label='Tamaño del centro de la gráfica de anillo'), False, False, 0)
+        hbox.pack_start(gtk.Label('Tamaño del centro de la gráfica de anillo'), False, False, 0)
         hbox.pack_start(spin, True, True, 0)
 
         #row.add(hbox)
@@ -218,7 +209,7 @@ class SettingsDialog(gtk.Dialog):
         #row = gtk.ListBoxRow()
         hbox = gtk.HBox()
         adj = gtk.Adjustment(dicc['fondo'][0], 0.0, 1.0, 0.1, 0)
-        scale = gtk.Scale(orientation=gtk.Orientation.HORIZONTAL, adjustment=adj)
+        scale = gtk.HScale(adjustment=adj)
         
         scale.connect('value-changed', self.set_background, 'r')
 
@@ -232,7 +223,7 @@ class SettingsDialog(gtk.Dialog):
         #row = gtk.ListBoxRow()
         hbox = gtk.HBox()
         adj = gtk.Adjustment(dicc['fondo'][1], 0.0, 1.0, 0.1, 0)
-        scale = gtk.Scale(orientation=gtk.Orientation.HORIZONTAL, adjustment=adj)
+        scale = gtk.HScale(adjustment=adj)
         
         scale.connect('value-changed', self.set_background, 'g')
 
@@ -246,7 +237,7 @@ class SettingsDialog(gtk.Dialog):
         #row = gtk.ListBoxRow()
         hbox = gtk.HBox()
         adj = gtk.Adjustment(dicc['fondo'][2], 0.0, 1.0, 0.1, 0)
-        scale = gtk.Scale(orientation=gtk.Orientation.HORIZONTAL, adjustment=adj)
+        scale = gtk.HScale(adjustment=adj)
         
         scale.connect('value-changed', self.set_background, 'b')
 
@@ -272,7 +263,7 @@ class SettingsDialog(gtk.Dialog):
 
         #row = gtk.HBox()
         hbox = gtk.HBox()
-        switch = gtk.Switch()
+        switch = gtk.CheckButton()
 
         switch.set_active(variable)
         switch.set_use_action_appearance(True)
@@ -288,7 +279,7 @@ class SettingsDialog(gtk.Dialog):
         elif label == 'Mostrar Cuadricula':
             switch.set_tooltip_text('Esta opción solo estará habilitada si la gráfica seleccionada, está entre las siguientes opciones: "Gráfica de puntos", "Gráfica de barras verticales" o la "Gráfica de barras horizontales')
 
-        hbox.pack_start(gtk.Label(label=label), False, False, 0)
+        hbox.pack_start(gtk.Label(label), False, False, 0)
         hbox.pack_end(switch, False, False, 0)
 
         #row.add(hbox)

@@ -63,7 +63,7 @@ class CairoGrapher(gtk.Window):
         #self.connect('reload', self.actualizar_combo_borrar, self.combo_borrar)
         self.connect('delete-event', self.salir)
 
-        #scrolled.add(self.area)
+        scrolled.add_with_viewport(self.area)
         self.paned.pack1(scrolled, 300, -1)
         self.paned.pack2(self._vbox)
         self.vbox.pack_start(self.paned, True, True, 0)
