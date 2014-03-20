@@ -47,6 +47,7 @@ class Toolbar(gtk.Toolbar):
         boton_guardar.set_tooltip_text('Guardar gráfica en un archivo, todos los cambios posteriores serán guardados automáticamente')
         boton_variable.set_tooltip_text('Crear nueva variable')
         boton_columna.set_tooltip_text('Agregar columna a las variables')
+        boton_columna.set_sensitive(False)
         boton_borrar.set_tooltip_text('Borrar la columna seleccionada')
         boton_borrar.set_sensitive(False)
 
