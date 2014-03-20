@@ -75,6 +75,7 @@ class CairoGrapher(Gtk.Window):
     def actualizar_combo_borrar(self, *args):
 
         self.l_valores = sorted(self.valores.keys())
+        boton = self.toolbar.get_children()[5]
 
         if self.l_valores:
             columnas = len(self.valores[self.l_valores[0]])
@@ -87,26 +88,28 @@ class CairoGrapher(Gtk.Window):
             self.combo_borrar.set_active(0)
             self.combo_borrar.set_sensitive(columnas > 1)
             self.combo_borrar.boton.set_sensitive(columnas > 1)
+            boton.set_sensitive(True)
 
         else:
             self.combo_borrar.set_sensitive(False)
             self.combo_borrar.boton.set_sensitive(False)
+            boton.set_sensitive(False)
 
     def crear_barra(self):
 
-        toolbar = Toolbar()
-        self.combo_borrar = toolbar.combo_borrar
+        self.toolbar = Toolbar()
+        self.combo_borrar = self.toolbar.combo_borrar
 
-        toolbar.connect('save', self.guardar_archivo)
-        toolbar.connect('new-variable', self.crear_variable)
-        toolbar.connect('new-variable', self.actualizar_combo_borrar)
-        toolbar.connect('new-column', self.aniadir_a_variable)
-        toolbar.connect('settings-dialog', self.dialogo_configuraciones)
-        toolbar.connect('change-plot', self.cambiar_tipo)
-        toolbar.connect('remove-column', self.borrar_columna)
-        toolbar.connect('remove-column', self.actualizar_combo_borrar)
+        self.toolbar.connect('save', self.guardar_archivo)
+        self.toolbar.connect('new-variable', self.crear_variable)
+        self.toolbar.connect('new-variable', self.actualizar_combo_borrar)
+        self.toolbar.connect('new-column', self.aniadir_a_variable)
+        self.toolbar.connect('settings-dialog', self.dialogo_configuraciones)
+        self.toolbar.connect('change-plot', self.cambiar_tipo)
+        self.toolbar.connect('remove-column', self.borrar_columna)
+        self.toolbar.connect('remove-column', self.actualizar_combo_borrar)
 
-        self.vbox.pack_start(toolbar, False, False, 0)
+        self.vbox.pack_start(self.toolbar, False, False, 0)
         #self.set_titlebar(toolbar)
 
     def guardar_archivo(self, *args):

@@ -50,6 +50,8 @@ class Toolbar(Gtk.Toolbar):
         boton_borrar.set_tooltip_text('Borrar la columna seleccionada')
         boton_borrar.set_sensitive(False)
 
+        boton_columna.set_sensitive(False)
+
         for x in self.lista:
             if ' ' in x:
                 nombre = x.split(' ')[-1]
