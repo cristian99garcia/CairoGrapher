@@ -255,6 +255,14 @@ class SettingsDialog(Gtk.Dialog):
         s_esquinas.connect('notify::active', self.set_var_switch, 'rounded_corners')
         s_cuadricula.connect('notify::active', self.set_var_switch, 'gird')
 
+        hbox = Gtk.HBox()
+        boton = Gtk.Button.new_from_stock(Gtk.STOCK_CLOSE)
+        
+        boton.connect('clicked', lambda x: self.close())
+
+        hbox.pack_end(boton, False, False, 0)
+        self.vbox.pack_end(hbox, False, False, 0)
+
         self.vbox.pack_start(self.listbox, True, True, 10)
 
     def hbox_with_switch(self, label, variable, ifvar):
