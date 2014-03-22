@@ -26,6 +26,7 @@ from Widgets import Toolbar
 from Widgets import PlotArea
 from Widgets import SettingsDialog
 from Widgets import SaveFilesDialog
+from Widgets import HelpDialog
 
 from gi.repository import Gtk
 from gi.repository import Gdk
@@ -109,6 +110,7 @@ class CairoGrapher(Gtk.Window):
         self.toolbar.connect('change-plot', self.cambiar_tipo)
         self.toolbar.connect('remove-column', self.borrar_columna)
         self.toolbar.connect('remove-column', self.actualizar_combo_borrar)
+        self.toolbar.connect('help-request', self.dialogo_ayuda)
 
         self.set_titlebar(self.toolbar)
 
@@ -135,6 +137,10 @@ class CairoGrapher(Gtk.Window):
         dialogo = SettingsDialog(self.cargar_configuracion(True))
         dialogo.connect('settings-changed', self.settings_changed)
         dialogo.show_all()
+
+    def dialogo_ayuda(self, *args):
+        
+        HelpDialog(self)
 
     def settings_changed(self, widget, dicc):
 

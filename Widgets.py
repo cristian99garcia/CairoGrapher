@@ -20,7 +20,7 @@ class Toolbar(Gtk.HeaderBar):
         'settings-dialog': (GObject.SIGNAL_RUN_FIRST, None, []),
         'change-plot': (GObject.SIGNAL_RUN_FIRST, None, []),
         'remove-column': (GObject.SIGNAL_RUN_FIRST, None, []),
-
+        'help-request': (GObject.SIGNAL_RUN_FIRST, None, []),
         }
 
     def __init__(self):
@@ -40,6 +40,7 @@ class Toolbar(Gtk.HeaderBar):
         modelo = Gtk.ListStore(GdkPixbuf.Pixbuf, str)
         renderer_pixbuf = Gtk.CellRendererPixbuf()
         renderer_text = Gtk.CellRendererText()
+        boton_ayuda = Gtk.ToolButton(Gtk.STOCK_HELP)
 
         boton_guardar.set_tooltip_text('Guardar gráfica en un archivo, todos los cambios posteriores serán guardados automáticamente')
         boton_variable.set_tooltip_text('Crear nueva variable')
@@ -51,7 +52,7 @@ class Toolbar(Gtk.HeaderBar):
         for x in self.lista:
             if ' ' in x:
                 nombre = x.split(' ')[-1]
-            
+
             else:
                 nombre = x
 
@@ -80,6 +81,7 @@ class Toolbar(Gtk.HeaderBar):
         boton_configuraciones.connect('clicked', lambda x: self.emit('settings-dialog'))
         self.combo_graficas.connect('changed', lambda x: self.emit('change-plot'))
         boton_borrar.connect('clicked', lambda x: self.emit('remove-column'))
+        boton_ayuda.connect('clicked', lambda x: self.emit('help-request'))
 
         self.add(boton_configuraciones)
         self.add(Gtk.SeparatorToolItem())
@@ -91,6 +93,8 @@ class Toolbar(Gtk.HeaderBar):
         self.add(self.combo_graficas)
         self.add(self.combo_borrar)
         self.add(boton_borrar)
+        self.add(Gtk.SeparatorToolItem())
+        self.add(boton_ayuda)
 
         #self.actualizar_combo_borrar()
 
@@ -197,7 +201,7 @@ class SettingsDialog(Gtk.Dialog):
         hbox = Gtk.HBox()
         adj = Gtk.Adjustment(dicc['fondo'][0], 0.0, 1.0, 0.1, 0)
         scale = Gtk.Scale(orientation=Gtk.Orientation.HORIZONTAL, adjustment=adj)
-        
+
         scale.connect('value-changed', self.set_background, 'r')
 
         hbox.pack_start(Gtk.Label('Cantidad de rojo en el fondo: '), False, False, 10)
@@ -209,7 +213,7 @@ class SettingsDialog(Gtk.Dialog):
         hbox = Gtk.HBox()
         adj = Gtk.Adjustment(dicc['fondo'][1], 0.0, 1.0, 0.1, 0)
         scale = Gtk.Scale(orientation=Gtk.Orientation.HORIZONTAL, adjustment=adj)
-        
+
         scale.connect('value-changed', self.set_background, 'g')
 
         hbox.pack_start(Gtk.Label('Cantidad de verde en el fondo: '), False, False, 10)
@@ -221,7 +225,7 @@ class SettingsDialog(Gtk.Dialog):
         hbox = Gtk.HBox()
         adj = Gtk.Adjustment(dicc['fondo'][2], 0.0, 1.0, 0.1, 0)
         scale = Gtk.Scale(orientation=Gtk.Orientation.HORIZONTAL, adjustment=adj)
-        
+
         scale.connect('value-changed', self.set_background, 'b')
 
         hbox.pack_start(Gtk.Label('Cantidad de azúl en el fondo: '), False, False, 10)
@@ -240,7 +244,7 @@ class SettingsDialog(Gtk.Dialog):
 
         hbox = Gtk.HBox()
         boton = Gtk.Button.new_from_stock(Gtk.STOCK_CLOSE)
-        
+
         boton.connect('clicked', lambda x: self.close())
 
         hbox.pack_end(boton, False, False, 0)
@@ -286,7 +290,7 @@ class SettingsDialog(Gtk.Dialog):
         self.emit('settings-changed', self.diccionario)
 
     def set_background(self, widget, color):
-        
+
         actual = self.diccionario['fondo']
         cantidad = widget.get_value()
 
@@ -300,18 +304,18 @@ class SettingsDialog(Gtk.Dialog):
             color =  actual[:2] + (cantidad,)
 
         self.diccionario['fondo'] = color
-        
+
         self.emit('settings-changed', self.diccionario)
 
 
 class SaveFilesDialog(Gtk.FileChooserDialog):
-    
+
     __gsignals__ = {
         'save-file': (GObject.SIGNAL_RUN_FIRST, None, [str]),
         }
-    
+
     def __init__(self):
-        
+
         Gtk.FileChooserDialog.__init__(self)
 
         self.add_buttons(Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL, Gtk.STOCK_SAVE, Gtk.ResponseType.ACCEPT)
@@ -326,11 +330,11 @@ class SaveFilesDialog(Gtk.FileChooserDialog):
 
         self.boton_guardar.connect('clicked', self.file_save)
         self.boton_cancelar.connect('clicked', lambda x: self.destroy())
-    
+
         self.show_all()
 
     def file_save(self, widget, reemplazar=False):
-        
+
         direccion = self.get_uri()
         direccion = direccion.split('file://')[1]
 
@@ -340,7 +344,7 @@ class SaveFilesDialog(Gtk.FileChooserDialog):
         if not os.path.exists(direccion) or reemplazar:
             self.emit('save-file', direccion)
             self.destroy()
-        
+
         else:
             dialogo = Gtk.Dialog()
             vbox = dialogo.get_content_area()
@@ -351,7 +355,7 @@ class SaveFilesDialog(Gtk.FileChooserDialog):
             dialogo.set_transient_for(self)
             dialogo.set_modal(True)
             dialogo.set_title('El archivo seleccionado ya existe')
-            
+
             boton_si.connect('clicked', self.file_save, True)
             boton_si.connect('clicked', lambda x: dialogo.destroy())
             boton_no.connect('clicked', lambda x: dialogo.destroy())
@@ -360,5 +364,69 @@ class SaveFilesDialog(Gtk.FileChooserDialog):
             hbox.pack_start(boton_no, False, False, 0)
             vbox.pack_start(Gtk.Label('¿Desea reemplazarlo?'), False, False, 10)
             vbox.pack_start(hbox, False, False, 0)
-            
+
             dialogo.show_all()
+
+
+class HelpDialog(Gtk.Dialog):
+
+    def __init__(self, padre):
+
+        Gtk.Dialog.__init__(self)
+
+        self.set_title('Ayuda de CairoGrapher')
+        self.set_modal(True)
+        self.set_transient_for(padre)
+        self.resize(*padre.get_size())
+
+        self.buttonbox = self.get_children()[0].get_children()[0]
+        self.imagenes = {}
+        self.activado = 1
+
+        hbox = Gtk.HBox()
+        direccion = os.path.join(os.path.dirname(__file__), 'images/')
+        boton = Gtk.Button.new_from_stock(Gtk.STOCK_CLOSE)
+        self.boton_atras = Gtk.Button.new_from_stock(Gtk.STOCK_GO_BACK)
+        self.boton_adelante = Gtk.Button.new_from_stock(Gtk.STOCK_GO_FORWARD)
+
+        for x in range(1, 3):
+            filename = os.path.join(direccion, 'ayuda%d.png' % x)
+            print os.path.exists(filename), filename
+            scrolled = Gtk.ScrolledWindow()
+            imagen = Gtk.Image.new_from_file(filename)
+
+            scrolled.add(imagen)
+            self.imagenes[x] = scrolled
+
+        boton.connect('clicked', lambda x: self.close())
+        self.boton_atras.connect('clicked', self.anterior)
+        self.boton_adelante.connect('clicked', self.siguiente)
+
+        hbox.pack_start(self.boton_atras, False, False, 0)
+        hbox.pack_end(self.boton_adelante, False, False, 0)
+        self.vbox.pack_start(hbox, False, False, 0)
+        self.vbox.pack_start(self.imagenes[1], True, True, 0)
+        self.buttonbox.add(boton)
+        self.show_all()
+
+        self.actualizar_widgets()
+
+    def actualizar_widgets(self, *args):
+
+        self.boton_atras.set_sensitive(self.activado > 1)
+        self.boton_adelante.set_sensitive(self.activado < len(self.imagenes.keys()))
+
+        self.vbox.remove(self.vbox.get_children()[1])
+        self.vbox.pack_start(self.imagenes[self.activado], True, True, 0)
+
+        self.show_all()
+
+    def anterior(self, *args):
+
+        self.activado -= 1
+        self.actualizar_widgets()
+
+    def siguiente(self, *args):
+
+        self.activado += 1
+        self.actualizar_widgets()
