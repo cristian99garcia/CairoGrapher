@@ -235,11 +235,12 @@ class SettingsDialog(Gtk.Dialog):
 
         s_ejes = self.hbox_with_switch('Presencia de los ejes', dicc['axis'], dicc['grafica'] == 'Gráfica de puntos')
         s_esquinas = self.hbox_with_switch('Bordes redondeados', dicc['rounded_corners'], dicc['grafica'] in ['Gráfica de barras verticales', 'Gráfica de barras horizontales'])
-        s_esquinas = self.hbox_with_switch('Mostrar valores', dicc['display_values'], dicc['grafica'] in ['Gráfica de barras verticales', 'Gráfica de barras horizontales'])
+        s_mostrar_valores = self.hbox_with_switch('Mostrar valores', dicc['display_values'], dicc['grafica'] in ['Gráfica de barras verticales', 'Gráfica de barras horizontales'])
         s_cuadricula = self.hbox_with_switch('Mostrar Cuadricula', dicc['rounded_corners'], dicc['grafica'] in ['Gráfica de puntos', 'Gráfica de barras verticales', 'Gráfica de barras horizontales'])
 
         s_ejes.connect('notify::active', self.set_var_switch, 'axis')
         s_esquinas.connect('notify::active', self.set_var_switch, 'rounded_corners')
+        s_mostrar_valores.connect('notify::active', self.set_var_switch, 'display_values')
         s_cuadricula.connect('notify::active', self.set_var_switch, 'gird')
 
         hbox = Gtk.HBox()
@@ -314,22 +315,28 @@ class SaveFilesDialog(Gtk.FileChooserDialog):
         'save-file': (GObject.SIGNAL_RUN_FIRST, None, [str]),
         }
 
-    def __init__(self):
+    def __init__(self, direccion):
 
         Gtk.FileChooserDialog.__init__(self)
 
-        self.add_buttons(Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL, Gtk.STOCK_SAVE, Gtk.ResponseType.ACCEPT)
+        self.buttonbox = self.get_children()[0].get_children()[1]
 
         self.set_modal(True)
         self.set_title('Guardar gráfica')
         self.set_current_folder(os.path.expanduser('~/'))
         self.set_action(Gtk.FileChooserAction.SAVE)
 
-        self.boton_guardar = self.get_children()[0].get_children()[1].get_children()[0]
-        self.boton_cancelar = self.get_children()[0].get_children()[1].get_children()[1]
+        self.boton_guardar = Gtk.Button.new_from_stock(Gtk.STOCK_SAVE)
+        self.boton_cancelar = Gtk.Button.new_from_stock(Gtk.STOCK_CANCEL)
+
+        if os.path.exists(direccion):
+            self.set_filename(direccion)
 
         self.boton_guardar.connect('clicked', self.file_save)
         self.boton_cancelar.connect('clicked', lambda x: self.destroy())
+
+        self.buttonbox.add(self.boton_cancelar)
+        self.buttonbox.add(self.boton_guardar)
 
         self.show_all()
 
@@ -355,6 +362,7 @@ class SaveFilesDialog(Gtk.FileChooserDialog):
             dialogo.set_transient_for(self)
             dialogo.set_modal(True)
             dialogo.set_title('El archivo seleccionado ya existe')
+            dialogo.set_resize_mode(False)
 
             boton_si.connect('clicked', self.file_save, True)
             boton_si.connect('clicked', lambda x: dialogo.destroy())

@@ -74,11 +74,11 @@ class CairoGrapher(Gtk.Window):
 
     def actualizar_combo_borrar(self, *args):
 
-        self.l_valores = sorted(self.valores.keys())
+        #self.l_valores = sorted(self.valores.keys())
         boton = self.toolbar.get_children()[5]
 
-        if self.l_valores:
-            columnas = len(self.valores[self.l_valores[0]])
+        if self.valores.keys():#self.l_valores:
+            columnas = len(self.valores[self.valores.keys()[0]])
 
             self.combo_borrar.remove_all()
 
@@ -117,11 +117,13 @@ class CairoGrapher(Gtk.Window):
     def guardar_archivo(self, *args):
 
         def save_file(widget, direccion):
-            
-            self.direccion = direccion
-            self.emit('reload')
 
-        d = SaveFilesDialog()
+            self.direccion = direccion
+            self._direccion = direccion
+            self.emit('reload')
+            self.direccion = os.path.expanduser('~/.cairographer/Grafica.png')
+
+        d = SaveFilesDialog(self._direccion)
         d.connect('save-file', save_file)
 
     def cambiar_tipo(self, toolbar):
@@ -139,7 +141,7 @@ class CairoGrapher(Gtk.Window):
         dialogo.show_all()
 
     def dialogo_ayuda(self, *args):
-        
+
         HelpDialog(self)
 
     def settings_changed(self, widget, dicc):
@@ -159,6 +161,15 @@ class CairoGrapher(Gtk.Window):
         self.cuadricula = dicc['gird']
         self.fondo = dicc['fondo']
 
+        print self.display_values
+
+        texto = str(dicc)
+        archivo = os.path.expanduser('~/.cairographer/config.json')
+        archivo = open(archivo, 'w')
+
+        archivo.write(texto)
+        archivo.close()
+
         self.emit('reload')
 
     def crear_grafica(self, grafica=None):
@@ -171,21 +182,21 @@ class CairoGrapher(Gtk.Window):
 
         self.cargar_colores()
 
-        for x in self.l_valores:
+        for x in self.valores.keys():#self.l_valores:
             for i in self.valores[x]:
                 if i >= 1:
                     pasar = True
                     break
 
-        if not pasar and self.l_valores:
-            self.valores[self.l_valores[0]] = [1]
+        if not pasar and self.valores.keys(): #self.l_valores:
+            self.valores[sorted(self.valores.keys())[0]] = [1]
 
         if grafica == 'Gráfica de barras horizontales':
-            y_labels = self.l_valores
+            y_labels = sorted(self.valores.keys()) #self.l_valores
             y_labels.sort()
 
             if self.valores:
-                if len(self.valores[self.l_valores[0]]) == 1:
+                if len(self.valores[sorted(self.valores.keys())[0]]) == 1:
                     valores = self.transformar_a_barras()
 
                 else:
@@ -211,12 +222,12 @@ class CairoGrapher(Gtk.Window):
                     colors=self.colores)
 
         elif grafica == 'Gráfica de barras verticales':
-            x_labels = self.l_valores
+            x_labels = sorted(self.valores.keys()) #self.l_valores
             y_labels = []
             x_labels.sort()
 
             if self.valores:
-                if len(self.valores[self.l_valores[0]]) == 1:
+                if len(self.valores[sorted(self.valores.keys())[0]]) == 1:
                     valores = self.transformar_a_barras()
 
                 else:
@@ -319,11 +330,11 @@ class CairoGrapher(Gtk.Window):
         columna = self.combo_borrar.get_active()
         cambiar = True
 
-        if self.l_valores and len(self.valores[self.l_valores[0]]) >= columna:
+        if self.valores.keys() and len(self.valores[sorted(self.valores.keys())[0]]) >= columna:
             self.limpiar_vbox()
-            self.l_valores = sorted(self.valores.keys())
+            valores = sorted(self.valores.keys())
 
-            for x in self.l_valores:
+            for x in valores:
                 self.valores[x].remove(self.valores[x][columna])
 
                 c = True
@@ -332,7 +343,7 @@ class CairoGrapher(Gtk.Window):
                     if i > 0:
                         c = False
                         break
-                
+
                 if c and cambiar:
                     self.valores[x][0] = 1.0
                     cambiar = False
@@ -352,7 +363,7 @@ class CairoGrapher(Gtk.Window):
         listbox.set_selection_mode(Gtk.SelectionMode.NONE)
         self.limpiar_vbox()
 
-        for _x in self.l_valores:
+        for _x in sorted(self.valores.keys()): #self.l_valores:
             row = Gtk.ListBoxRow()
             hbox = Gtk.HBox()
             label = Gtk.Label(_x)
@@ -483,7 +494,7 @@ class CairoGrapher(Gtk.Window):
         listbox.remove(row)
         del self.colors[row]
         del self.valores[label.get_label()]
-        self.l_valores = self.ordenar_lista()
+        #self.l_valores = self.ordenar_lista()
 
         self.widgets['Entrys'].remove(entrada)
         self.widgets['SpinButtons'].remove(spin)
@@ -493,30 +504,60 @@ class CairoGrapher(Gtk.Window):
 
     def cargar_configuracion(self, devolver=False):
 
+        direccion = os.path.expanduser('~/.cairographer')
+
+        if not os.path.exists(direccion):
+            os.mkdir(direccion)
+
         if not devolver:
             self.widgets = {'SpinButtons': [], 'Entrys': [], 'ClouseButtons': []}
             self.colors = {}
             self.botones = []
             self.colores = []
-            self.valores = {}
-            self.direccion = os.path.expanduser('~/Grafica.png')
-            self.grafica = 'Gráfica de torta'
-            self.nombre = 'Grafica'
-            self.titulo_x = 'Gráfica'
-            self.titulo_y = ''
-            self.tamanyo_x = 600
-            self.tamanyo_y = 600
-            self.fondo = (1, 1, 1)
-            self.borde = 0
-            self.display_values = False
-            self.axis = True
-            self.cuadricula = True
-            self.grupos = True
-            self.rounded_corners = True
-            self.inner_radius = 0.3
+            self.grupos = False
             self.x_labels = []
             self.y_labels = []
-            self.l_valores = self.ordenar_lista()
+            self._direccion = os.path.expanduser('~/Grafica.png')
+
+            if not os.path.exists(os.path.join(direccion, 'config.json')):
+                self.direccion = os.path.join(direccion, 'Grafica.png')
+                self.grafica = 'Gráfica de torta'
+                self.valores = {}
+                self.nombre = 'Grafica'
+                self.titulo_x = 'Gráfica'
+                self.titulo_y = ''
+                self.tamanyo_x = 600
+                self.tamanyo_y = 600
+                self.fondo = (1, 1, 1)
+                self.borde = 0
+                self.display_values = False
+                self.axis = True
+                self.cuadricula = True
+                self.rounded_corners = True
+                self.inner_radius = 0.3
+
+            elif os.path.exists(os.path.join(direccion, 'config.json')):
+                texto = open(os.path.join(direccion, 'config.json')).read()
+                dicc = eval(texto)
+
+                self.direccion = dicc['direccion']
+                self.grafica = dicc['grafica']
+                self.valores = dicc['valores']
+                self.nombre = dicc['nombre']
+                self.titulo_x = dicc['titulo_x']
+                self.titulo_y = dicc['titulo_y']
+                self.tamanyo_x = int(dicc['tamanyo_x'])
+                self.tamanyo_y = int(dicc['tamanyo_y'])
+                self.inner_radius = dicc['inner_radius']
+                self.borde = dicc['borde']
+                self.axis = dicc['axis']
+                self.rounded_corners = dicc['rounded_corners']
+                self.display_values = dicc['display_values']
+                self.cuadricula = dicc['gird']
+                self.fondo = dicc['fondo']
+
+                print self.display_values
+                self.emit('reload')
 
         else:
             return {
@@ -534,6 +575,7 @@ class CairoGrapher(Gtk.Window):
                 'display_values': self.display_values,
                 'gird': self.cuadricula,
                 'fondo': self.fondo,
+                'valores': self.valores
                 }
 
     def cambiar_nombre_variable(self, widget, label, row):
@@ -551,8 +593,6 @@ class CairoGrapher(Gtk.Window):
         label.set_label(nombre_nuevo)
         del self.valores[nombre_antiguo]
         self.valores[nombre_nuevo] = valores
-        self.l_valores = self.valores.keys()
-        self.l_valores = self.ordenar_lista()
 
         for x in self.widgets['SpinButtons']:
             if x.variable == nombre_antiguo:
@@ -564,11 +604,12 @@ class CairoGrapher(Gtk.Window):
 
         lista = self._vbox.get_children()
         self.colores += [self.get_color()]
+        a = self.valores.keys()
 
         self.limpiar_vbox()
 
-        if self.l_valores:
-            cantidad = len(self.valores[self.l_valores[0]])
+        if self.valores.keys():
+            cantidad = len(self.valores[sorted(self.valores.keys())[0]])
             lista = []
 
             for x in range(0, cantidad):
@@ -592,16 +633,9 @@ class CairoGrapher(Gtk.Window):
                 valor = 'Variable %d' % num
 
         self.valores[valor] = lista
-        self.l_valores = self.ordenar_lista()
 
         self.cargar_variables()
-
-    def ordenar_lista(self):
-
-        self.l_valores = self.valores.keys()
-        self.l_valores.sort()
-
-        return self.l_valores
+        self.guardar_configuracion()
 
     def limpiar_vbox(self):
 
@@ -614,7 +648,7 @@ class CairoGrapher(Gtk.Window):
 
     def aniadir_a_variable(self, widget):
 
-        for x in self.l_valores:
+        for x in self.valores.keys(): #self.l_valores:
             self.valores[x] += [0]
 
         if self.grafica.startswith('Gráfica de barras'):
@@ -640,6 +674,14 @@ class CairoGrapher(Gtk.Window):
         color = (num1, num2, num3)
 
         return color
+
+    def guardar_configuracion(self):
+
+        dicc = str(self.cargar_configuracion(devolver=True))
+        archivo = open(os.path.expanduser('~/.cairographer/settings.json'), 'w')
+
+        archivo.write(dicc)
+        archivo.close()
 
     def __set_value(self, widget, gparam=None):
 
