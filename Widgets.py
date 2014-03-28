@@ -399,7 +399,6 @@ class HelpDialog(Gtk.Dialog):
 
         for x in range(1, 3):
             filename = os.path.join(direccion, 'ayuda%d.png' % x)
-            print os.path.exists(filename), filename
             scrolled = Gtk.ScrolledWindow()
             imagen = Gtk.Image.new_from_file(filename)
 

@@ -161,8 +161,6 @@ class CairoGrapher(Gtk.Window):
         self.cuadricula = dicc['gird']
         self.fondo = dicc['fondo']
 
-        print self.display_values
-
         texto = str(dicc)
         archivo = os.path.expanduser('~/.cairographer/config.json')
         archivo = open(archivo, 'w')
@@ -556,7 +554,6 @@ class CairoGrapher(Gtk.Window):
                 self.cuadricula = dicc['gird']
                 self.fondo = dicc['fondo']
 
-                print self.display_values
                 self.emit('reload')
 
         else:
