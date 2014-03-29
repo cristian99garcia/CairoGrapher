@@ -72,7 +72,10 @@ class CairoGrapher(Gtk.Window):
         self.vbox.pack_start(self.paned, True, True, 0)
 
         self.add(self.vbox)
-        self.show_all()
+        self.vbox.show()
+        self.paned.show()
+        scrolled1.show_all()
+        scrolled2.show()
 
         self.emit('reload')
 
@@ -122,6 +125,13 @@ class CairoGrapher(Gtk.Window):
                 break
 
         self.set_titlebar(self.toolbar)
+
+    def ocultar_controles_de_colores(self, *args):
+
+        for x in self.listbox.get_children():
+            hbox = x.get_children()[0]
+            controles = hbox.get_children()[-2]
+            controles.hide()
 
     def guardar_archivo(self, *args):
 
@@ -459,7 +469,7 @@ class CairoGrapher(Gtk.Window):
             row.add(hbox)
             self.listbox.add(row)
             self.listbox.show_all()
-            hbox_mas.hide()
+            self.ocultar_controles_de_colores()
 
         if actualizar:
             self.emit('reload')
@@ -576,7 +586,6 @@ class CairoGrapher(Gtk.Window):
                     self.grafica = self.grafica.replace('\xc3\xa1', 'á')
 
                 self.transformar_colores_a_colors()
-
                 self.emit('reload')
 
         else:
@@ -599,6 +608,8 @@ class CairoGrapher(Gtk.Window):
                 'colors': self.colors,
                 'colores': self.colores,
                 }
+
+        self.ocultar_controles_de_colores()
 
     def cambiar_nombre_variable(self, widget, label, row):
 
