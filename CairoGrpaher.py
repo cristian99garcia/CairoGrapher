@@ -61,7 +61,7 @@ class CairoGrapher(Gtk.Window):
         self.cargar_variables()
 
         self.connect('reload', self.__recargar)
-        self.connect('reload', self.actualizar_combo_borrar, self.combo_borrar)
+        self.connect('reload', self.actualizar_widgets, self.combo_borrar)
         self.connect('save-changes', self.guardar_configuracion)
         self.connect('delete-event', self.salir)
 
@@ -85,9 +85,9 @@ class CairoGrapher(Gtk.Window):
             for x in self.listbox.get_children():
                 self.colors[x] = (self.colores[listbox.get_children().index(x)])
 
-    def actualizar_combo_borrar(self, *args):
+    def actualizar_widgets(self, *args):
 
-        boton = self.toolbar.get_children()[5]
+        boton = self.toolbar.get_children()[3]
         columnas = 0
 
         if self.valores.keys():
@@ -110,12 +110,12 @@ class CairoGrapher(Gtk.Window):
 
         self.toolbar.connect('save', self.guardar_archivo)
         self.toolbar.connect('new-variable', self.crear_variable)
-        self.toolbar.connect('new-variable', self.actualizar_combo_borrar)
+        self.toolbar.connect('new-variable', self.actualizar_widgets)
         self.toolbar.connect('new-column', self.aniadir_a_variable)
         self.toolbar.connect('settings-dialog', self.dialogo_configuraciones)
         self.toolbar.connect('change-plot', self.cambiar_tipo)
         self.toolbar.connect('remove-column', self.borrar_columna)
-        self.toolbar.connect('remove-column', self.actualizar_combo_borrar)
+        self.toolbar.connect('remove-column', self.actualizar_widgets)
         self.toolbar.connect('help-request', self.dialogo_ayuda)
 
         for x in range(0, len(self.toolbar.lista)):
@@ -377,7 +377,7 @@ class CairoGrapher(Gtk.Window):
 
             self.cargar_variables()
 
-        self.actualizar_combo_borrar()
+        self.actualizar_widgets()
 
     def cargar_variables(self, actualizar=True):
 
