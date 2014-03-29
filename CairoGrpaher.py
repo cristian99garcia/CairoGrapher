@@ -85,6 +85,7 @@ class CairoGrapher(Gtk.Window):
     def actualizar_combo_borrar(self, *args):
 
         boton = self.toolbar.get_children()[5]
+        columnas = 0
 
         if self.valores.keys():
             columnas = len(self.valores[self.valores.keys()[0]])
@@ -94,16 +95,10 @@ class CairoGrapher(Gtk.Window):
             for x in range(1, columnas + 1):
                 self.combo_borrar.append_text('Columna ' + str(x))
 
-            self.combo_borrar.set_active(0)
-            self.combo_borrar.set_sensitive(columnas > 1)
-            self.combo_borrar.boton.set_sensitive(columnas > 1)
-            boton.set_sensitive(True)
-
-        else:
-            self.combo_borrar.set_sensitive(False)
-            self.combo_borrar.boton.set_sensitive(False)
-            self.combo_borrar.set_sensitive(False)
-            boton.set_sensitive(False)
+        self.combo_borrar.set_active(0)
+        self.combo_borrar.set_sensitive(columnas > 1)
+        self.combo_borrar.boton.set_sensitive(columnas > 1)
+        boton.set_sensitive(bool(self.valores.keys()))
 
     def crear_barra(self):
 
