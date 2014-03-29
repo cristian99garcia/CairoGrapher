@@ -37,47 +37,56 @@ class CairoGrapher(Gtk.Window):
 
     __gsignals__ = {
         'reload': (GObject.SIGNAL_RUN_FIRST, None, []),
+        'save-changes': (GObject.SIGNAL_RUN_FIRST, None, []),
             }
 
     def __init__(self):
 
         Gtk.Window.__init__(self)
 
-        self.cargar_configuracion()
-
         self.set_size_request(600, 480)
 
         self.vbox = Gtk.VBox()
-        self._vbox = Gtk.VBox()
+        self.listbox = Gtk.ListBox()
         self.paned = Gtk.HPaned()
         self.area = PlotArea()
 
-        scrolled = Gtk.ScrolledWindow()
+        self.listbox.set_selection_mode(Gtk.SelectionMode.NONE)
 
+        scrolled1 = Gtk.ScrolledWindow()
+        scrolled2 = Gtk.ScrolledWindow()
+
+        self.cargar_configuracion()
         self.crear_barra()
-        self.crear_scrolled_variables()
-        self.crear_grafica()
-
-        self.area.set_plot(self.direccion)
+        self.cargar_variables()
 
         self.connect('reload', self.__recargar)
-        self.connect('reload', self.actualizar_combo_borrar, self.combo_borrar)
+        #self.connect('reload', self.actualizar_combo_borrar, self.combo_borrar)
+        self.connect('save-changes', self.guardar_configuracion)
         self.connect('delete-event', self.salir)
 
-        scrolled.add(self.area)
-        self.paned.pack1(scrolled, 300, -1)
-        self.paned.pack2(self._vbox)
+        scrolled1.add(self.area)
+        scrolled2.add(self.listbox)
+        self.paned.pack1(scrolled1, 300, -1)
+        self.paned.pack2(scrolled2)
         self.vbox.pack_start(self.paned, True, True, 0)
 
         self.add(self.vbox)
         self.show_all()
 
+        self.emit('reload')
+
+    def transformar_colores_a_colors(self):
+
+        if len(self.colores) >= len(self.colors.keys()):
+            for x in self.listbox.get_children():
+                self.colors[x] = (self.colores[listbox.get_children().index(x)])
+
     def actualizar_combo_borrar(self, *args):
 
-        #self.l_valores = sorted(self.valores.keys())
         boton = self.toolbar.get_children()[5]
 
-        if self.valores.keys():#self.l_valores:
+        if self.valores.keys():
             columnas = len(self.valores[self.valores.keys()[0]])
 
             self.combo_borrar.remove_all()
@@ -111,6 +120,12 @@ class CairoGrapher(Gtk.Window):
         self.toolbar.connect('remove-column', self.borrar_columna)
         self.toolbar.connect('remove-column', self.actualizar_combo_borrar)
         self.toolbar.connect('help-request', self.dialogo_ayuda)
+
+        for x in range(0, len(self.toolbar.lista)):
+            if self.grafica.endswith(self.toolbar.lista[x]):
+                self.combo_borrar.set_active(x)
+                self.combo_borrar.emit('changed')
+                break
 
         self.set_titlebar(self.toolbar)
 
@@ -178,19 +193,20 @@ class CairoGrapher(Gtk.Window):
         self.grafica = grafica
         pasar = False
 
-        self.cargar_colores()
+        #self.cargar_colores()
 
-        for x in self.valores.keys():#self.l_valores:
+        print self.colores
+        for x in self.valores.keys():
             for i in self.valores[x]:
                 if i >= 1:
                     pasar = True
                     break
 
-        if not pasar and self.valores.keys(): #self.l_valores:
+        if not pasar and self.valores.keys():
             self.valores[sorted(self.valores.keys())[0]] = [1]
 
         if grafica == 'Gráfica de barras horizontales':
-            y_labels = sorted(self.valores.keys()) #self.l_valores
+            y_labels = sorted(self.valores.keys())
             y_labels.sort()
 
             if self.valores:
@@ -295,6 +311,8 @@ class CairoGrapher(Gtk.Window):
 
         self.area.set_plot(self.direccion)
 
+        self.emit('save-changes')
+
     def transformar_a_barras(self):
 
         lista = []
@@ -313,15 +331,12 @@ class CairoGrapher(Gtk.Window):
 
         self.colores = []
 
-        if self._vbox.get_children():
-            listbox = self._vbox.get_children()[0]
+        for x in self.listbox.get_children():
+            self.colores += [self.colors[x]]
 
-            for x in listbox.get_children():
-                self.colores += [self.colors[x]]
-
-            if listbox.get_children() and len(self.colores) < len(listbox.get_children()[0].get_children()[0]):
-                while len(self.colores) < len(listbox.get_children()[0].get_children()[0]):
-                    self.colores += [self.get_color()]
+        if self.listbox.get_children() and len(self.colores) < len(self.listbox.get_children()[0].get_children()[0]):
+            while len(self.colores) < len(self.listbox.get_children()[0].get_children()[0]):
+                self.colores += [self.get_color()]
 
     def borrar_columna(self, widget):
 
@@ -352,16 +367,13 @@ class CairoGrapher(Gtk.Window):
 
     def cargar_variables(self, actualizar=True):
 
-        #self.l_valores = self.ordenar_lista()
-        #self.l_valores = sorted(self.valores.keys())
+        #if actualizar:
         self.colors = {}
         lista = []
-        listbox = Gtk.ListBox()
 
-        listbox.set_selection_mode(Gtk.SelectionMode.NONE)
         self.limpiar_vbox()
 
-        for _x in sorted(self.valores.keys()): #self.l_valores:
+        for _x in sorted(self.valores.keys()):
             row = Gtk.ListBoxRow()
             hbox = Gtk.HBox()
             label = Gtk.Label(_x)
@@ -423,7 +435,7 @@ class CairoGrapher(Gtk.Window):
             g_scale.set_size_request(-1, 100)
             b_scale.set_size_request(-1, 100)
 
-            boton_cerrar.connect('clicked', self.borrar_valor, label, entrada, spin, listbox, row)
+            boton_cerrar.connect('clicked', self.borrar_valor, label, entrada, spin, row)
 
             boton_mas.connect('clicked', self.mostrar, hbox_mas)
             r_scale.connect('value-changed', self.setear_color, 'Rojo', row)
@@ -441,11 +453,9 @@ class CairoGrapher(Gtk.Window):
             hbox.pack_end(hbox_mas, True, True, 0)
             hbox.pack_end(boton_mas, False, False, 10)
             row.add(hbox)
-            listbox.add(row)
-            listbox.show_all()
+            self.listbox.add(row)
+            self.listbox.show_all()
             hbox_mas.hide()
-
-        self._vbox.pack_start(listbox, False, False, 10)
 
         if actualizar:
             self.emit('reload')
@@ -487,12 +497,11 @@ class CairoGrapher(Gtk.Window):
 
         self.emit('reload')
 
-    def borrar_valor(self, widget, label, entrada, spin, listbox, row):
+    def borrar_valor(self, widget, label, entrada, spin, row):
 
-        listbox.remove(row)
+        self.listbox.remove(row)
         del self.colors[row]
         del self.valores[label.get_label()]
-        #self.l_valores = self.ordenar_lista()
 
         self.widgets['Entrys'].remove(entrada)
         self.widgets['SpinButtons'].remove(spin)
@@ -509,10 +518,9 @@ class CairoGrapher(Gtk.Window):
 
         if not devolver:
             self.widgets = {'SpinButtons': [], 'Entrys': [], 'ClouseButtons': []}
-            self.colors = {}
             self.botones = []
-            self.colores = []
             self.grupos = False
+            self.colors = {}
             self.x_labels = []
             self.y_labels = []
             self._direccion = os.path.expanduser('~/Grafica.png')
@@ -521,6 +529,8 @@ class CairoGrapher(Gtk.Window):
                 self.direccion = os.path.join(direccion, 'Grafica.png')
                 self.grafica = 'Gráfica de torta'
                 self.valores = {}
+                #self.colors = {}
+                self.colores = []
                 self.nombre = 'Grafica'
                 self.titulo_x = 'Gráfica'
                 self.titulo_y = ''
@@ -534,6 +544,8 @@ class CairoGrapher(Gtk.Window):
                 self.rounded_corners = True
                 self.inner_radius = 0.3
 
+                self.emit('save-changes')
+
             elif os.path.exists(os.path.join(direccion, 'config.json')):
                 texto = open(os.path.join(direccion, 'config.json')).read()
                 dicc = eval(texto)
@@ -541,6 +553,8 @@ class CairoGrapher(Gtk.Window):
                 self.direccion = dicc['direccion']
                 self.grafica = dicc['grafica']
                 self.valores = dicc['valores']
+                #self.colors = dicc['colors']
+                self.colores = dicc['colores']
                 self.nombre = dicc['nombre']
                 self.titulo_x = dicc['titulo_x']
                 self.titulo_y = dicc['titulo_y']
@@ -553,6 +567,11 @@ class CairoGrapher(Gtk.Window):
                 self.display_values = dicc['display_values']
                 self.cuadricula = dicc['gird']
                 self.fondo = dicc['fondo']
+
+                if '\xc3\xa1' in self.grafica:
+                    self.grafica = self.grafica.replace('\xc3\xa1', 'á')
+
+                self.transformar_colores_a_colors()
 
                 self.emit('reload')
 
@@ -572,7 +591,9 @@ class CairoGrapher(Gtk.Window):
                 'display_values': self.display_values,
                 'gird': self.cuadricula,
                 'fondo': self.fondo,
-                'valores': self.valores
+                'valores': self.valores,
+                'colors': self.colors,
+                'colores': self.colores,
                 }
 
     def cambiar_nombre_variable(self, widget, label, row):
@@ -599,7 +620,6 @@ class CairoGrapher(Gtk.Window):
 
     def crear_variable(self, *args):
 
-        lista = self._vbox.get_children()
         self.colores += [self.get_color()]
         a = self.valores.keys()
 
@@ -610,10 +630,10 @@ class CairoGrapher(Gtk.Window):
             lista = []
 
             for x in range(0, cantidad):
-                lista += [0]
+                lista += [0.0]
 
         else:
-            lista = [0]
+            lista = [0.0]
 
         num = (len(self.valores) + 1)
         valor = 'Variable %d' % num
@@ -632,16 +652,16 @@ class CairoGrapher(Gtk.Window):
         self.valores[valor] = lista
 
         self.cargar_variables()
-        self.guardar_configuracion()
+        self.emit('save-changes')
 
     def limpiar_vbox(self):
 
         while True:
-            if len(self._vbox.get_children()) == 0:
+            if len(self.listbox.get_children()) == 0:
                 break
 
-            for x in self._vbox.get_children():
-                self._vbox.remove(x)
+            for x in self.listbox.get_children():
+                self.listbox.remove(x)
 
     def aniadir_a_variable(self, widget):
 
@@ -652,14 +672,6 @@ class CairoGrapher(Gtk.Window):
             self.colores += self.get_color()
 
         self.cargar_variables()
-
-    def crear_scrolled_variables(self):
-
-        scrolled = Gtk.ScrolledWindow()
-
-        self.cargar_variables()
-        scrolled.add_with_viewport(self._vbox)
-        self.paned.pack2(scrolled)
 
     def get_color(self):
 
@@ -672,12 +684,38 @@ class CairoGrapher(Gtk.Window):
 
         return color
 
-    def guardar_configuracion(self):
+    def guardar_configuracion(self, *args):
 
-        dicc = str(self.cargar_configuracion(devolver=True))
-        archivo = open(os.path.expanduser('~/.cairographer/settings.json'), 'w')
+        dicc = self.cargar_configuracion(devolver=True)
+        archivo = open(os.path.expanduser('~/.cairographer/config.json'), 'w')
+        texto = '{\n'
 
-        archivo.write(dicc)
+        for x in sorted(dicc.keys()):
+            if type(dicc[x]) != list and type(dicc[x]) != dict:
+                if type(dicc[x]) == str:
+                    texto += '    "' + x + '": ' + '"' + str(dicc[x]) + '",\n'
+
+                elif type(dicc[x]) != str:
+                    texto += '    "' + x + '": ' + str(dicc[x]) + ',\n'
+
+            else:
+                if type(dicc[x]) == dict and x != 'colors':
+                    texto += '    "' + x + '": {\n'
+                    for i in sorted(dicc[x].keys()):
+                        texto += '        "' + i + '": ' + str(dicc[x][i]) + ',\n'
+
+                    texto += '    },\n'
+
+                elif type(dicc[x]) == list:
+                    texto += '    "' + x + '": [\n'
+                    for i in sorted(dicc[x]):
+                        texto += '        ' + str(i) + ',\n'
+
+                    texto += '    ],\n'
+
+        texto += '}'
+
+        archivo.write(texto)
         archivo.close()
 
     def __set_value(self, widget, gparam=None):
