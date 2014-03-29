@@ -32,7 +32,7 @@ class Toolbar(Gtk.HeaderBar):
             'puntos', 'anillo'
             ]
 
-        boton_configuraciones = Gtk.ToolButton(Gtk.STOCK_PREFERENCES)
+        boton_configuraciones = Gtk.Button.new_from_icon_name(Gtk.STOCK_PREFERENCES, Gtk.IconSize.BUTTON)
         boton_guardar = Gtk.ToolButton(Gtk.STOCK_SAVE)
         boton_variable = Gtk.ToolButton(Gtk.STOCK_ADD)
         boton_columna = Gtk.ToolButton(Gtk.STOCK_ADD)
@@ -42,7 +42,7 @@ class Toolbar(Gtk.HeaderBar):
         renderer_text = Gtk.CellRendererText()
         boton_ayuda = Gtk.ToolButton(Gtk.STOCK_HELP)
 
-        boton_guardar.set_tooltip_text('Guardar gráfica en un archivo, todos los cambios posteriores serán guardados automáticamente')
+        boton_guardar.set_tooltip_text('Guardar gráfica en un archivo')
         boton_variable.set_tooltip_text('Crear nueva variable')
         boton_columna.set_tooltip_text('Agregar columna a las variables')
         boton_borrar.set_tooltip_text('Borrar la columna seleccionada')
@@ -83,8 +83,7 @@ class Toolbar(Gtk.HeaderBar):
         boton_borrar.connect('clicked', lambda x: self.emit('remove-column'))
         boton_ayuda.connect('clicked', lambda x: self.emit('help-request'))
 
-        self.add(boton_configuraciones)
-        self.add(Gtk.SeparatorToolItem())
+        #self.add(Gtk.SeparatorToolItem())
         self.add(boton_guardar)
         self.add(Gtk.SeparatorToolItem())
         self.add(boton_variable)
@@ -93,8 +92,9 @@ class Toolbar(Gtk.HeaderBar):
         self.add(self.combo_graficas)
         self.add(self.combo_borrar)
         self.add(boton_borrar)
-        self.add(Gtk.SeparatorToolItem())
-        self.add(boton_ayuda)
+        #self.add(Gtk.SeparatorToolItem())
+        self.pack_end(boton_ayuda)
+        self.pack_end(boton_configuraciones)
 
         #self.actualizar_combo_borrar()
 
