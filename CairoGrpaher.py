@@ -195,7 +195,17 @@ class CairoGrapher(Gtk.Window):
 
         #self.cargar_colores()
 
-        print self.colores
+        if self.colores and type(self.colores[-1]) == float:
+            c1 = self.colores[-3]
+            c2 = self.colores[-2]
+            c3 = self.colores[-1]
+
+            self.colores.remove(self.colores[-1])
+            self.colores.remove(self.colores[-1])
+            self.colores.remove(self.colores[-1])
+
+            self.colores.insert(-1, (c1, c2, c3))
+
         for x in self.valores.keys():
             for i in self.valores[x]:
                 if i >= 1:
