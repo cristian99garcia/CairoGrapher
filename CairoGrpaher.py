@@ -61,7 +61,7 @@ class CairoGrapher(Gtk.Window):
         self.cargar_variables()
 
         self.connect('reload', self.__recargar)
-        #self.connect('reload', self.actualizar_combo_borrar, self.combo_borrar)
+        self.connect('reload', self.actualizar_combo_borrar, self.combo_borrar)
         self.connect('save-changes', self.guardar_configuracion)
         self.connect('delete-event', self.salir)
 
@@ -97,7 +97,6 @@ class CairoGrapher(Gtk.Window):
             self.combo_borrar.set_active(0)
             self.combo_borrar.set_sensitive(columnas > 1)
             self.combo_borrar.boton.set_sensitive(columnas > 1)
-            self.combo_borrar.set_sensitive(False)
             boton.set_sensitive(True)
 
         else:
