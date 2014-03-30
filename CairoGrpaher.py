@@ -79,11 +79,11 @@ class CairoGrapher(Gtk.Window):
 
         self.emit('reload')
 
-    def transformar_colores_a_colors(self):
+    def transformar_colores(self):
 
         if len(self.colores) >= len(self.colors.keys()):
             for x in self.listbox.get_children():
-                self.colors[x] = (self.colores[listbox.get_children().index(x)])
+                self.colors[x] = (self.colores[self.listbox.get_children().index(x)])
 
     def actualizar_widgets(self, *args):
 
@@ -384,6 +384,7 @@ class CairoGrapher(Gtk.Window):
         #if actualizar:
         self.colors = {}
         lista = []
+        n = 0
 
         self.limpiar_vbox()
 
@@ -393,7 +394,14 @@ class CairoGrapher(Gtk.Window):
             label = Gtk.Label(_x)
             entrada = Gtk.Entry()
             numero = 0
-            self.colors[row] = self.get_color()
+            n += 1
+
+            if len(self.colores) >= n:
+                self.colors[row] = self.colores[n - 1]
+
+            else:
+                self.colors[row] = self.get_color()
+                self.colores.append(self.colors[row])
 
             self.widgets['Entrys'].append(entrada)
 
@@ -496,18 +504,24 @@ class CairoGrapher(Gtk.Window):
             boton.set_image(imagen)
             boton.set_tooltip_text('Ocultar los controles de color')
 
-    def setear_color(self, widget, label, listbox):
+    def setear_color(self, widget, label, row):
 
         cantidad = widget.get_value()
 
         if label == 'Rojo':
-            self.colors[listbox] = (cantidad,) + self.colors[listbox][1:]
+            color = (cantidad,) + self.colors[row][1:]
 
         elif label == 'Verde':
-            self.colors[listbox] = self.colors[listbox][:1] + (cantidad,) + self.colors[listbox][2:]
+            color = self.colors[row][:1] + (cantidad,) + self.colors[row][2:]
 
         elif label == 'Azúl':
-            self.colors[listbox] =  self.colors[listbox][:2] + (cantidad,)
+            color =  self.colors[row][:2] + (cantidad,)
+
+        self.colors[row] = color
+        self.colores = []
+
+        for x in self.listbox.get_children():
+            self.colores.append(self.colors[x])
 
         self.emit('reload')
 
@@ -585,7 +599,7 @@ class CairoGrapher(Gtk.Window):
                 if '\xc3\xa1' in self.grafica:
                     self.grafica = self.grafica.replace('\xc3\xa1', 'á')
 
-                self.transformar_colores_a_colors()
+                #self.transformar_colores()
                 self.emit('reload')
 
         else:

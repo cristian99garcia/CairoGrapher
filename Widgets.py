@@ -32,6 +32,8 @@ class Toolbar(Gtk.HeaderBar):
             'puntos', 'anillo'
             ]
 
+        self.set_show_close_button(True)
+
         boton_configuraciones = Gtk.Button.new_from_icon_name(Gtk.STOCK_PREFERENCES, Gtk.IconSize.BUTTON)
         boton_guardar = Gtk.ToolButton(Gtk.STOCK_SAVE)
         boton_variable = Gtk.ToolButton(Gtk.STOCK_ADD)
@@ -97,8 +99,6 @@ class Toolbar(Gtk.HeaderBar):
         self.pack_end(boton_configuraciones)
 
         #self.actualizar_combo_borrar()
-
-        self.set_show_close_button(True)
 
     def get_plot_combo(self):
 
