@@ -134,14 +134,11 @@ class SettingsDialog(gtk.Dialog):
         gtk.Dialog.__init__(self)
 
         self.diccionario = dicc
-        self.listbox = gtk.ListBox()
 
         self.set_modal(True)
         self.set_title('Configuraciones')
         self.set_resizable(False)
-        self.listbox.set_selection_mode(gtk.SelectionMode.NONE)
 
-        row = gtk.ListBoxRow()
         hbox = gtk.HBox()
         spin_x = gtk.SpinButton()
         spin_y = gtk.SpinButton()
@@ -156,15 +153,13 @@ class SettingsDialog(gtk.Dialog):
         spin_y.set_value(dicc['tamanyo_y'])
         spin_y.connect('value-changed', self.set_var_spin, 'tamanyo_y')
 
-        hbox.pack_start(gtk.Label(label='Tamaño de la gráfica:'),
+        hbox.pack_start(gtk.Label('Tamaño de la gráfica:'),
             False, False, 10)
         hbox.pack_end(spin_y, False, False, 0)
         hbox.pack_end(spin_x, False, False, 10)
 
-        row.add(hbox)
-        self.listbox.add(row)
+        self.vbox.pack_start(hbox, False, False, 2)
 
-        row = gtk.ListBoxRow()
         hbox = gtk.HBox()
         spin = gtk.SpinButton()
         adj = gtk.Adjustment(dicc['borde'], 0, 200, 1, 10, 0)
@@ -174,13 +169,12 @@ class SettingsDialog(gtk.Dialog):
         spin.set_tooltip_text('Esta opción solo se habilitará, cuando esté seleccionada la "Gráfica de anillo"')
         spin.connect('value-changed', self.set_var_spin, 'borde')
 
-        hbox.pack_start(gtk.Label(label='Borde'), False, False, 10)
+        hbox.pack_start(gtk.Label('Borde'), False, False, 10)
         hbox.pack_end(spin, False, False, 0)
 
-        row.add(hbox)
-        self.listbox.add(row)
+        self.vbox.pack_start(hbox, False, False, 2)
 
-        row = gtk.ListBoxRow()
+        hbox = gtk.HBox()
         hbox = gtk.HBox()
         spin = gtk.SpinButton()
         adj = gtk.Adjustment(dicc['inner_radius'], 0.1, 0.9, 0.1, 0)
@@ -193,47 +187,40 @@ class SettingsDialog(gtk.Dialog):
 
         spin.connect('value-changed', self.set_var_spin, 'inner_radius')
 
-        hbox.pack_start(gtk.Label(label='Tamaño del centro de la gráfica de anillo'), False, False, 0)
+        hbox.pack_start(gtk.Label('Tamaño del centro de la gráfica de anillo'), False, False, 0)
         hbox.pack_start(spin, True, True, 0)
 
-        row.add(hbox)
-        self.listbox.add(row)
+        self.vbox.pack_start(hbox, False, False, 2)
 
-        row = gtk.ListBoxRow()
         hbox = gtk.HBox()
         adj = gtk.Adjustment(dicc['fondo'][0], 0.0, 1.0, 0.1, 0)
-        scale = gtk.Scale(orientation=gtk.Orientation.HORIZONTAL, adjustment=adj)
+        scale = gtk.HScale(adjustment=adj)
 
         scale.connect('value-changed', self.set_background, 'r')
 
         hbox.pack_start(gtk.Label('Cantidad de rojo en el fondo: '), False, False, 10)
         hbox.pack_end(scale, True, True, 0)
-        row.add(hbox)
-        self.listbox.add(row)
+        self.vbox.pack_start(hbox, False, False, 2)
 
-        row = gtk.ListBoxRow()
         hbox = gtk.HBox()
         adj = gtk.Adjustment(dicc['fondo'][1], 0.0, 1.0, 0.1, 0)
-        scale = gtk.Scale(orientation=gtk.Orientation.HORIZONTAL, adjustment=adj)
+        scale = gtk.HScale(adjustment=adj)
 
         scale.connect('value-changed', self.set_background, 'g')
 
         hbox.pack_start(gtk.Label('Cantidad de verde en el fondo: '), False, False, 10)
         hbox.pack_end(scale, True, True, 0)
-        row.add(hbox)
-        self.listbox.add(row)
+        self.vbox.pack_start(hbox, False, False, 2)
 
-        row = gtk.ListBoxRow()
         hbox = gtk.HBox()
         adj = gtk.Adjustment(dicc['fondo'][2], 0.0, 1.0, 0.1, 0)
-        scale = gtk.Scale(orientation=gtk.Orientation.HORIZONTAL, adjustment=adj)
+        scale = gtk.HScale(adjustment=adj)
 
         scale.connect('value-changed', self.set_background, 'b')
 
         hbox.pack_start(gtk.Label('Cantidad de azúl en el fondo: '), False, False, 10)
         hbox.pack_end(scale, True, True, 0)
-        row.add(hbox)
-        self.listbox.add(row)
+        self.vbox.pack_start(hbox, False, False, 2)
 
         s_ejes = self.hbox_with_switch('Presencia de los ejes', dicc['axis'], dicc['grafica'] == 'Gráfica de puntos')
         s_esquinas = self.hbox_with_switch('Bordes redondeados', dicc['rounded_corners'], dicc['grafica'] in ['Gráfica de barras verticales', 'Gráfica de barras horizontales'])
@@ -246,24 +233,21 @@ class SettingsDialog(gtk.Dialog):
         s_cuadricula.connect('notify::active', self.set_var_switch, 'gird')
 
         hbox = gtk.HBox()
-        boton = gtk.Button.new_from_stock(gtk.STOCK_CLOSE)
+        boton = gtk.Button(stock=gtk.STOCK_CLOSE)
 
-        boton.connect('clicked', lambda x: self.close())
+        boton.connect('clicked', lambda x: self.destroy())
 
         hbox.pack_end(boton, False, False, 0)
         self.vbox.pack_end(hbox, False, False, 0)
 
-        self.vbox.pack_start(self.listbox, True, True, 10)
-
     def hbox_with_switch(self, label, variable, ifvar):
 
-        row = gtk.HBox()
         hbox = gtk.HBox()
-        switch = gtk.Switch()
+        switch = gtk.CheckButton()
 
         switch.set_active(variable)
         switch.set_use_action_appearance(True)
-        row.set_sensitive(ifvar)
+        hbox.set_sensitive(ifvar)
 
         if label == 'Presencia de los ejes':
             switch.set_tooltip_text('Esta opción solo se habilitará si está seleccionada la "Gráfica de puntos"')
@@ -274,11 +258,10 @@ class SettingsDialog(gtk.Dialog):
         elif label == 'Mostrar Cuadricula':
             switch.set_tooltip_text('Esta opción solo estará habilitada si la gráfica seleccionada, está entre las siguientes opciones: "Gráfica de puntos", "Gráfica de barras verticales" o la "Gráfica de barras horizontales')
 
-        hbox.pack_start(gtk.Label(label=label), False, False, 0)
+        hbox.pack_start(gtk.Label(label), False, False, 0)
         hbox.pack_end(switch, False, False, 0)
 
-        row.add(hbox)
-        self.listbox.add(row)
+        self.vbox.pack_start(hbox, False, False, 2)
 
         return switch
 
@@ -326,10 +309,10 @@ class SaveFilesDialog(gtk.FileChooserDialog):
         self.set_modal(True)
         self.set_title('Guardar gráfica')
         self.set_current_folder(os.path.expanduser('~/'))
-        self.set_action(gtk.FileChooserAction.SAVE)
+        self.set_action(gtk.FILE_CHOOSER_ACTION_SAVE)
 
-        self.boton_guardar = gtk.Button.new_from_stock(gtk.STOCK_SAVE)
-        self.boton_cancelar = gtk.Button.new_from_stock(gtk.STOCK_CANCEL)
+        self.boton_guardar = gtk.Button(stock=gtk.STOCK_SAVE)
+        self.boton_cancelar = gtk.Button(stock=gtk.STOCK_CANCEL)
 
         if os.path.exists(direccion):
             self.set_filename(direccion)
@@ -358,20 +341,22 @@ class SaveFilesDialog(gtk.FileChooserDialog):
             dialogo = gtk.Dialog()
             vbox = dialogo.get_content_area()
             hbox = gtk.HBox()
-            boton_si = gtk.Button.new_from_stock(gtk.STOCK_YES)
-            boton_no = gtk.Button.new_from_stock(gtk.STOCK_NO)
+            boton_si = gtk.Button(stock=gtk.STOCK_YES)
+            boton_no = gtk.Button(stock=gtk.STOCK_NO)
 
             dialogo.set_transient_for(self)
             dialogo.set_modal(True)
             dialogo.set_title('El archivo seleccionado ya existe')
             dialogo.set_resize_mode(False)
+            boton_si.set_size_request(50, -1)
+            boton_no.set_size_request(50, -1)
 
             boton_si.connect('clicked', self.file_save, True)
             boton_si.connect('clicked', lambda x: dialogo.destroy())
             boton_no.connect('clicked', lambda x: dialogo.destroy())
 
             hbox.pack_start(boton_si, False, False, 20)
-            hbox.pack_start(boton_no, False, False, 0)
+            hbox.pack_end(boton_no, False, False, 0)
             vbox.pack_start(gtk.Label('¿Desea reemplazarlo?'), False, False, 10)
             vbox.pack_start(hbox, False, False, 0)
 
