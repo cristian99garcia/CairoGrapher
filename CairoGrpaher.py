@@ -103,6 +103,11 @@ class CairoGrapher(Gtk.Window):
         self.combo_borrar.boton.set_sensitive(columnas > 1)
         boton.set_sensitive(bool(self.valores.keys()))
 
+        for x in self.toolbar.lista:
+            if self.grafica.endswith(x):
+                self.toolbar.combo_graficas.set_active(self.toolbar.lista.index(x))
+                break
+
     def crear_barra(self):
 
         self.toolbar = Toolbar()
