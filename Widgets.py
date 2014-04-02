@@ -29,7 +29,7 @@ class Toolbar(Gtk.HeaderBar):
 
         self.lista = [
             'torta', 'barras horizontales', 'barras verticales',
-            'puntos', 'anillo'
+            'puntos', 'anillo', 'ecuaciones'
             ]
 
         self.set_show_close_button(True)
@@ -143,8 +143,8 @@ class SettingsDialog(Gtk.Dialog):
         hbox = Gtk.HBox()
         spin_x = Gtk.SpinButton()
         spin_y = Gtk.SpinButton()
-        adj_x = Gtk.Adjustment(dicc['tamanyo_x'], 50, 5000, 1, 10, 0)
-        adj_y = Gtk.Adjustment(dicc['tamanyo_y'], 50, 5000, 1, 10, 0)
+        adj_x = Gtk.Adjustment(dicc['tamanyo_x'], 50, 5000, 1 if dicc['grafica'] != 'Gráfica de ecuaciones' else 50, 10, 0)
+        adj_y = Gtk.Adjustment(dicc['tamanyo_y'], 50, 5000, 1 if dicc['grafica'] != 'Gráfica de ecuaciones' else 50, 10, 0)
 
         spin_x.set_adjustment(adj_x)
         spin_x.set_value(dicc['tamanyo_x'])
@@ -282,7 +282,27 @@ class SettingsDialog(Gtk.Dialog):
 
     def set_var_spin(self, widget, variable):
 
-        self.diccionario[variable] = widget.get_value()
+        if self.diccionario['grafica'] == 'Gráfica de ecuaciones' and variable in ['tamanyo_x', 'tamanyo_y']:
+            hbox = self.get_children()[0].get_children()[0].get_children()[0].get_children()[0]
+            spin1 = hbox.get_children()[1]
+            spin2 = hbox.get_children()[2]
+
+            if widget == spin1:
+                adj = Gtk.Adjustment(spin1.get_value(), 50, 5000, 50, 50, 0)
+                spin2.set_adjustment(adj)
+                spin2.set_value(spin2.get_value())
+
+            elif widget == spin2:
+                adj = Gtk.Adjustment(spin2.get_value(), 50, 5000, 50, 50, 0)
+                spin1.set_adjustment(adj)
+                spin1.set_value(spin2.get_value())
+
+            self.diccionario['tamanyo_x'] = spin1.get_value()
+            self.diccionario['tamanyo_y'] = spin1.get_value()
+
+        else:
+            self.diccionario[variable] = widget.get_value()
+
         self.emit('settings-changed', self.diccionario)
 
     def set_var_switch(self, widget, gparam, variable):

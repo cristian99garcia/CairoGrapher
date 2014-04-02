@@ -328,6 +328,11 @@ class CairoGrapher(Gtk.Window):
                 colors=self.colores,
                 inner_radius=self.inner_radius)
 
+        elif grafica == 'Gráfica de ecuaciones':
+            valores = self.transformar_a_ecuaciones()
+
+            CairoPlot.dot_ecuations_plot(self.direccion, valores, self.tamanyo_x, self.tamanyo_y)
+
         self.area.set_plot(self.direccion)
 
         self.emit('save-changes')
@@ -343,6 +348,31 @@ class CairoGrapher(Gtk.Window):
 
         while len(self.colores) < len(lista):
             self.colores += [self.get_color()]
+
+        return lista
+
+    def transformar_a_ecuaciones(self):
+
+        lista = []
+        rows = self.listbox.get_children()
+
+        for row in rows:
+            spins = row.get_children()[0].get_children()[1:3]
+            hbox =  row.get_children()[0].get_children()[-2]
+            color = ()
+            num1 = spins[0].get_value()
+            num2 = spins[1].get_value()
+            adj1 = Gtk.Adjustment(num1 if num1 <= 20 else 20, -20, 20, 1, 0)
+            adj2 = Gtk.Adjustment(num2 if num2 <= 20 else 20, -20, 20, 1, 0)
+            spins[0].set_adjustment(adj1)
+            spins[1].set_adjustment(adj2)
+            spins[0].set_value(num1 if num1 <= 20 else 20)
+            spins[1].set_value(num2 if num2 <= 20 else 20)
+
+            for x in hbox.get_children():
+                color += (x.get_value(),)
+
+            lista += [(spins[0].get_value(), spins[1].get_value(), color)]
 
         return lista
 

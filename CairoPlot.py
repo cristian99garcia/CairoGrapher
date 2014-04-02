@@ -1965,7 +1965,178 @@ class GanttChart (Plot) :
                                       self.borders[VERT] + index*self.vertical_step + 3.0*self.vertical_step/4.0,
                                       self.series_colors[index])
 
+class EcuationsPlot(Plot):
+
+    def __init__(self, name, data, width, height):
+
+        Plot.__init__(self, name, None, width, height, (1.0, 1.0, 1.0))
+
+        self.data = data
+        self.filename = name
+        self.dimensions[HORZ] = width
+        self.dimensions[VERT] = height
+        self.labels = {HORZ: [], VERT: []}
+        self.borders = {0: 0, 1: 0}
+        self.plot_top = 0
+        self.horizontal_step = float(self.dimensions[VERT]) / (len(self.labels[VERT]) - 1)
+        self.vertical_step = float(self.dimensions[HORZ]) / (len(self.labels[HORZ]) - 1)
+        self.cantidad = 21
+
+        for x in range(0, self.cantidad):
+            self.labels[HORZ].append(str(x))
+            self.labels[VERT].append(str(x))
+
+    def load_series(self, data, x_labels=None, y_labels=None, series_colors=None):
+        Plot.load_series(self, data, x_labels, y_labels, series_colors)
+        for group in self.series :
+            for index, data in enumerate(group):
+                group[index].content = (index, data.content)
+
+    def render_axis(self):
+
+        cr = self.context
+        horizontal_step = float(self.dimensions[HORZ]) / (len(self.labels[VERT]) - 1)
+        vertical_step = float(self.dimensions[VERT]) / (len(self.labels[HORZ]) - 1)
+        x = 0
+        y = 0
+
+        cr.set_source_rgba(0, 0, 0)
+        cr.set_line_width(5)
+
+        cr.move_to(self.dimensions[HORZ] / 2, 0)
+        cr.line_to(self.dimensions[HORZ] / 2, self.dimensions[VERT])
+        cr.stroke()
+
+        cr.move_to(0, self.dimensions[VERT] / 2)
+        cr.line_to(self.dimensions[HORZ], self.dimensions[VERT] / 2)
+        cr.stroke()
+
+        # Marcar los números de los ejes
+        for x in range(1, (self.cantidad - 1) / 2 + 1):
+
+            # Números de la recta de absisas
+
+            # Negativos
+            cr.move_to(self.dimensions[HORZ] / 2 - x * vertical_step + 2, self.dimensions[VERT] / 2 + 15)
+            cr.show_text('-' + str(x))
+
+            # Positivos
+            if len(str(x)) == 1:
+                cr.move_to(self.dimensions[HORZ] / 2 + x * vertical_step - 7, self.dimensions[VERT] / 2 - 5)
+
+            elif len(str(x)) >= 1:
+                cr.move_to(self.dimensions[HORZ] / 2 + x * vertical_step - 12, self.dimensions[VERT] / 2 - 5)
+
+            cr.show_text(str(x))
+
+            # Números de la recta de ordenadas
+
+            # Negativos
+            if not x == 1:
+                if len(str(x)) == 1:
+                    cr.move_to(self.dimensions[HORZ] / 2 -12, self.dimensions[VERT] / 2 + x * vertical_step - 1)
+
+                elif len(str(x)) > 1:
+                    cr.move_to(self.dimensions[HORZ] / 2 -20, self.dimensions[VERT] / 2 + x * vertical_step - 1)
+
+                cr.show_text('-' + str(x))
+
+            # Positivos
+            if not x == 1:
+                if len(str(x)) == 1:
+                    cr.move_to(self.dimensions[HORZ] / 2 + 5, self.dimensions[VERT] / 2 - ((x-1) * vertical_step - 1) - 20)
+
+                elif len(str(x)) > 1:
+                    cr.move_to(self.dimensions[HORZ] / 2 + 2, self.dimensions[VERT] / 2 - ((x-1) * vertical_step - 1) - 20)
+
+                cr.show_text(str(x))
+
+    def render_grid(self):
+
+        cr = self.context
+        horizontal_step = float(self.dimensions[HORZ]) / (len(self.labels[VERT]) - 1)
+        vertical_step = float(self.dimensions[VERT]) / (len(self.labels[HORZ]) - 1)
+        x = self.borders[HORZ] + vertical_step
+        y = self.plot_top - horizontal_step
+
+        cr.set_line_width(2)
+        cr.set_source_rgba(0, 0, 0)
+
+        for label in self.labels[HORZ]:
+            cr.move_to(x, self.dimensions[VERT] - self.borders[VERT])
+            cr.line_to(x, self.borders[VERT])
+            cr.stroke()
+            x += vertical_step
+
+        for label in self.labels[VERT]:
+            cr.move_to(self.borders[HORZ], y)
+            cr.line_to(self.dimensions[HORZ] - self.borders[HORZ], y)
+            cr.stroke()
+            y += horizontal_step
+
+    def mark_a_point(self, x, y, color):
+
+        cr = self.context
+        horizontal_step = float(self.dimensions[HORZ]) / (len(self.labels[VERT]) - 1)
+        vertical_step = float(self.dimensions[VERT]) / (len(self.labels[HORZ]) - 1)
+        x = x * horizontal_step + self.dimensions[HORZ] / 2
+        y = self.dimensions[VERT] / 2 - y * vertical_step
+
+        cr.set_source_rgba(*color)
+
+        cr.arc(x, y, self.dimensions[HORZ] / 100, 0, 2 * math.pi)
+        cr.fill()
+
+    def mark_a_line(self, point1, point2, color):
+
+        cr = self.context
+
+        cr.set_source_rgba(*color)
+
+        cr.move_to(*point1)
+        cr.line_to(*point2)
+        cr.stroke()
+
+    def render(self):
+
+        self.render_background()
+        self.render_grid()
+        self.render_axis()
+
+        if self.data:
+            for x in self.data:
+                self.mark_a_point(*x)
+
 # Function definition
+
+def dot_ecuations_plot(
+    name,
+    data=None,
+    width=500,
+    height=500,
+    background="white light_gray",
+    border=0,
+    axis=False,
+    dash=False,
+    discrete=False,
+    dots=False,
+    grid=False,
+    series_legend=False,
+    x_labels=None,
+    y_labels=None,
+    x_bounds=None,
+    y_bounds=None,
+    z_bounds=None,
+    x_title=None,
+    y_title=None,
+    series_colors=None,
+    circle_colors=None):
+
+    plot = EcuationsPlot(name, data, width, height)
+
+    plot.render()
+    plot.commit()
+
 
 def scatter_plot(name,
                  data   = None,
