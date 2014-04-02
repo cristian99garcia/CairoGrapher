@@ -2017,15 +2017,24 @@ class EcuationsPlot(Plot):
             # Números de la recta de absisas
 
             # Negativos
-            cr.move_to(self.dimensions[HORZ] / 2 - x * vertical_step + 2, self.dimensions[VERT] / 2 + 15)
+            if x != 1:
+                cr.move_to(self.dimensions[HORZ] / 2 - x * vertical_step, self.dimensions[VERT] / 2 + vertical_step * 0.60)
+
+            else:
+                cr.move_to(self.dimensions[HORZ] / 2 - x * vertical_step + vertical_step / 3, self.dimensions[VERT] / 2 + vertical_step * 0.60)
+
             cr.show_text('-' + str(x))
 
             # Positivos
             if len(str(x)) == 1:
-                cr.move_to(self.dimensions[HORZ] / 2 + x * vertical_step - 7, self.dimensions[VERT] / 2 - 5)
+                if x != 1:
+                    cr.move_to(self.dimensions[HORZ] / 2 + x * vertical_step - vertical_step / 3, self.dimensions[VERT] / 2 - vertical_step / 3)
+
+                else:
+                    cr.move_to(self.dimensions[HORZ] / 2 + x * vertical_step / 3, self.dimensions[VERT] / 2 - vertical_step / 3)
 
             elif len(str(x)) >= 1:
-                cr.move_to(self.dimensions[HORZ] / 2 + x * vertical_step - 12, self.dimensions[VERT] / 2 - 5)
+                cr.move_to(self.dimensions[HORZ] / 2 + x * vertical_step - vertical_step / 2, self.dimensions[VERT] / 2 - vertical_step / 3)
 
             cr.show_text(str(x))
 
@@ -2034,20 +2043,20 @@ class EcuationsPlot(Plot):
             # Negativos
             if not x == 1:
                 if len(str(x)) == 1:
-                    cr.move_to(self.dimensions[HORZ] / 2 -12, self.dimensions[VERT] / 2 + x * vertical_step - 1)
+                    cr.move_to(self.dimensions[HORZ] / 2 - horizontal_step / 1.5, self.dimensions[VERT] / 2 + x * vertical_step - 1)
 
                 elif len(str(x)) > 1:
-                    cr.move_to(self.dimensions[HORZ] / 2 -20, self.dimensions[VERT] / 2 + x * vertical_step - 1)
+                    cr.move_to(self.dimensions[HORZ] / 2 - horizontal_step / 1.5, self.dimensions[VERT] / 2 + x * vertical_step - 1)
 
                 cr.show_text('-' + str(x))
 
             # Positivos
             if not x == 1:
                 if len(str(x)) == 1:
-                    cr.move_to(self.dimensions[HORZ] / 2 + 5, self.dimensions[VERT] / 2 - ((x-1) * vertical_step - 1) - 20)
+                    cr.move_to(self.dimensions[HORZ] / 2 + horizontal_step / 3, self.dimensions[VERT] / 2 - ((x-1) * vertical_step - 1) - vertical_step / 1.5)
 
                 elif len(str(x)) > 1:
-                    cr.move_to(self.dimensions[HORZ] / 2 + 2, self.dimensions[VERT] / 2 - ((x-1) * vertical_step - 1) - 20)
+                    cr.move_to(self.dimensions[HORZ] / 2 + horizontal_step / 3, self.dimensions[VERT] / 2 - ((x-1) * vertical_step - 1) - vertical_step / 1.5)
 
                 cr.show_text(str(x))
 

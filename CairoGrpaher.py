@@ -357,22 +357,23 @@ class CairoGrapher(Gtk.Window):
         rows = self.listbox.get_children()
 
         for row in rows:
-            spins = row.get_children()[0].get_children()[1:3]
-            hbox =  row.get_children()[0].get_children()[-2]
-            color = ()
-            num1 = spins[0].get_value()
-            num2 = spins[1].get_value()
-            adj1 = Gtk.Adjustment(num1 if num1 <= 20 else 20, -20, 20, 1, 0)
-            adj2 = Gtk.Adjustment(num2 if num2 <= 20 else 20, -20, 20, 1, 0)
-            spins[0].set_adjustment(adj1)
-            spins[1].set_adjustment(adj2)
-            spins[0].set_value(num1 if num1 <= 20 else 20)
-            spins[1].set_value(num2 if num2 <= 20 else 20)
+            if len(row.get_children()[0].get_children()) >= 6:
+                spins = row.get_children()[0].get_children()[1:3]
+                hbox =  row.get_children()[0].get_children()[-2]
+                color = ()
+                num1 = spins[0].get_value()
+                num2 = spins[1].get_value()
+                adj1 = Gtk.Adjustment(num1 if num1 <= 20 else 20, -20, 20, 1, 0)
+                adj2 = Gtk.Adjustment(num2 if num2 <= 20 else 20, -20, 20, 1, 0)
+                spins[0].set_adjustment(adj1)
+                spins[1].set_adjustment(adj2)
+                spins[0].set_value(num1 if num1 <= 20 else 20)
+                spins[1].set_value(num2 if num2 <= 20 else 20)
 
-            for x in hbox.get_children():
-                color += (x.get_value(),)
+                for x in hbox.get_children():
+                    color += (x.get_value(),)
 
-            lista += [(spins[0].get_value(), spins[1].get_value(), color)]
+                lista += [(spins[0].get_value(), spins[1].get_value(), color)]
 
         return lista
 
@@ -453,6 +454,9 @@ class CairoGrapher(Gtk.Window):
 
                 else:
                     _min = 0
+
+                if self.grafica == 'Gráfica de ecuaciones':
+                    _min = -20
 
                 spin = Gtk.SpinButton()
                 adj = Gtk.Adjustment(x, _min, 10000000, 1, 10, 0)
