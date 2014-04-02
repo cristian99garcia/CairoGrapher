@@ -2043,10 +2043,10 @@ class EcuationsPlot(Plot):
             # Negativos
             if not x == 1:
                 if len(str(x)) == 1:
-                    cr.move_to(self.dimensions[HORZ] / 2 - horizontal_step / 1.5, self.dimensions[VERT] / 2 + x * vertical_step - 1)
+                    cr.move_to(self.dimensions[HORZ] / 2 - horizontal_step / 1.5, self.dimensions[VERT] / 2 + x * vertical_step - vertical_step / 7)
 
                 elif len(str(x)) > 1:
-                    cr.move_to(self.dimensions[HORZ] / 2 - horizontal_step / 1.5, self.dimensions[VERT] / 2 + x * vertical_step - 1)
+                    cr.move_to(self.dimensions[HORZ] / 2 - horizontal_step / 1.5, self.dimensions[VERT] / 2 + x * vertical_step - vertical_step / 7)
 
                 cr.show_text('-' + str(x))
 
