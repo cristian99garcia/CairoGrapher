@@ -2071,7 +2071,7 @@ class EcuationsPlot(Plot):
         x = self.borders[HORZ] + vertical_step
         y = self.plot_top - horizontal_step
 
-        cr.set_line_width(2)
+        cr.set_line_width(vertical_step / 20)
         cr.set_source_rgba(0, 0, 0)
 
         for label in self.labels[HORZ]:
