@@ -1967,11 +1967,12 @@ class GanttChart (Plot) :
 
 class EcuationsPlot(Plot):
 
-    def __init__(self, name, data, width, height):
+    def __init__(self, name, data, rectas, width, height):
 
         Plot.__init__(self, name, None, width, height, (1.0, 1.0, 1.0))
 
         self.data = data
+        self.lines = rectas
         self.filename = name
         self.dimensions[HORZ] = width
         self.dimensions[VERT] = height
@@ -1981,6 +1982,7 @@ class EcuationsPlot(Plot):
         self.horizontal_step = float(self.dimensions[VERT]) / (len(self.labels[VERT]) - 1)
         self.vertical_step = float(self.dimensions[HORZ]) / (len(self.labels[HORZ]) - 1)
         self.cantidad = 21
+        self.points = {}
 
         for x in range(0, self.cantidad):
             self.labels[HORZ].append(str(x))
@@ -1997,6 +1999,7 @@ class EcuationsPlot(Plot):
         cr = self.context
         horizontal_step = float(self.dimensions[HORZ]) / (len(self.labels[VERT]) - 1)
         vertical_step = float(self.dimensions[VERT]) / (len(self.labels[HORZ]) - 1)
+        cr.set_font_size(self.dimensions[VERT] / len(self.labels[VERT]) / 3)
         x = 0
         y = 0
 
@@ -2088,6 +2091,7 @@ class EcuationsPlot(Plot):
         cr = self.context
         horizontal_step = float(self.dimensions[HORZ]) / (len(self.labels[VERT]) - 1)
         vertical_step = float(self.dimensions[VERT]) / (len(self.labels[HORZ]) - 1)
+        self.points[(x, y)] = color
         x = x * horizontal_step + self.dimensions[HORZ] / 2
         y = self.dimensions[VERT] / 2 - y * vertical_step
 
@@ -2099,6 +2103,9 @@ class EcuationsPlot(Plot):
     def mark_a_line(self, point1, point2, color):
 
         cr = self.context
+
+        if len(color) == 4:
+            color = color[-1]
 
         cr.set_source_rgba(*color)
 
@@ -2116,11 +2123,19 @@ class EcuationsPlot(Plot):
             for x in self.data:
                 self.mark_a_point(*x)
 
+        if self.lines:
+            for x in self.lines:
+                punto1 = x[0], x[1]
+                punto2 = x[2][0], x[2][1]
+                color = x[2][-1]
+                self.mark_a_line(punto1, punto2, color)
+
 # Function definition
 
 def dot_ecuations_plot(
     name,
     data=None,
+    rectas=[],
     width=500,
     height=500,
     background="white light_gray",
@@ -2141,7 +2156,7 @@ def dot_ecuations_plot(
     series_colors=None,
     circle_colors=None):
 
-    plot = EcuationsPlot(name, data, width, height)
+    plot = EcuationsPlot(name, data, rectas, width, height)
 
     plot.render()
     plot.commit()

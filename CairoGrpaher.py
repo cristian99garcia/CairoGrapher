@@ -329,9 +329,9 @@ class CairoGrapher(Gtk.Window):
                 inner_radius=self.inner_radius)
 
         elif grafica == 'Gráfica de ecuaciones':
-            valores = self.transformar_a_ecuaciones()
+            valores, rectas = self.transformar_a_ecuaciones()
 
-            CairoPlot.dot_ecuations_plot(self.direccion, valores, self.tamanyo_x, self.tamanyo_y)
+            CairoPlot.dot_ecuations_plot(self.direccion, valores, rectas=rectas, width=self.tamanyo_x, height=self.tamanyo_y)
 
         self.area.set_plot(self.direccion)
 
@@ -354,13 +354,14 @@ class CairoGrapher(Gtk.Window):
     def transformar_a_ecuaciones(self):
 
         lista = []
+        rectas = []
+        colores = {}
         rows = self.listbox.get_children()
 
         for row in rows:
             if len(row.get_children()[0].get_children()) >= 6:
                 spins = row.get_children()[0].get_children()[1:3]
                 hbox =  row.get_children()[0].get_children()[-2]
-                color = ()
                 num1 = spins[0].get_value()
                 num2 = spins[1].get_value()
                 adj1 = Gtk.Adjustment(num1 if num1 <= 20 else 20, -20, 20, 1, 0)
@@ -370,12 +371,23 @@ class CairoGrapher(Gtk.Window):
                 spins[0].set_value(num1 if num1 <= 20 else 20)
                 spins[1].set_value(num2 if num2 <= 20 else 20)
 
-                for x in hbox.get_children():
-                    color += (x.get_value(),)
+                r = hbox.get_children()[0].get_value()
+                g = hbox.get_children()[1].get_value()
+                b = hbox.get_children()[2].get_value()
+                color = (r, g, b)
+                #print r, g, b
+                #for x in hbox.get_children():
+                #    color += (x.get_value() * 1.0,)
 
                 lista += [(spins[0].get_value(), spins[1].get_value(), color)]
 
-        return lista
+                if not color in colores:
+                    colores[color] = spins[0].get_value(), spins[1].get_value(), color
+
+                else:
+                    rectas += [[spins[0].get_value(), spins[1].get_value(), colores[color]]]
+
+        return lista, rectas
 
     def cargar_colores(self):
 
