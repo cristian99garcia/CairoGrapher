@@ -2004,7 +2004,7 @@ class EcuationsPlot(Plot):
         y = 0
 
         cr.set_source_rgba(0, 0, 0)
-        cr.set_line_width(5)
+        cr.set_line_width(vertical_step / 10)
 
         cr.move_to(self.dimensions[HORZ] / 2, 0)
         cr.line_to(self.dimensions[HORZ] / 2, self.dimensions[VERT])
@@ -2103,11 +2103,13 @@ class EcuationsPlot(Plot):
     def mark_a_line(self, point1, point2, color):
 
         cr = self.context
+        vertical_step = float(self.dimensions[VERT]) / (len(self.labels[HORZ]) - 1)
 
         if len(color) == 4:
             color = color[-1]
 
         cr.set_source_rgba(*color)
+        cr.set_line_width(vertical_step / 15)
 
         cr.move_to(*point1)
         cr.line_to(*point2)
